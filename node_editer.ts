@@ -1,6 +1,6 @@
-import './node';
-import './joint';
-import './connector';
+import {ENode} from './node';
+import {InputJoint} from './joint';
+import {Connector} from './connector';
 
 class NodeEditer{
     node_list:ENode[];

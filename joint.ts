@@ -1,6 +1,10 @@
-export class Joint{
+import {EditorElement} from './editor_element';
+
+export class Joint extends EditorElement{
     instance_id : String;
     constructor( instance_id : String ){
+        super();
+
         this.instance_id  = instance_id;
     }
 } 
