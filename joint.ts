@@ -1,13 +1,27 @@
 import {Connector} from './connector';
-import {EditorElement} from './editor_element';
+import {EditorElement, EditorElementData} from './editor_element';
 
-export abstract class Joint extends EditorElement{
-    instance_id : String;
+export const enum JointType {
+    OUTPUT : "output",
+    INPUT : "input"
+}
 
-    constructor( instance_id : String ){
+export interface JointData extends EditorElementData{
+    type : JointType;
+    jointdata : Object;
+}
+
+
+export abstract class Joint extends EditorElement implements JointData{
+
+    type:JointType;
+    jointdata : Object;
+
+    constructor( instance_id : string, jointdata : Object ){
         super();
 
         this.instance_id  = instance_id;
+        this.jointdata = jointdata
     }
 
     abstract add_connector( connector:Connector )
@@ -20,34 +34,43 @@ export abstract class Joint extends EditorElement{
                 y1 : this.pos.y,
             });
     }
+
+    toJSON (): JointData{
+        return {
+            type: this.type,
+            instance_id : this.instance_id,
+            jointdata : this.jointdata,
+            pos : {
+                x : this.pos.x,
+                y : this.pos.y
+            }
+        };
+    }
 } 
 
 
 export class OutputJoint extends Joint{
-    type:String = 'output';
+
+    type:JointType = JointType.OUTPUT;
 
     connectors:Connector[];
 
-    constructor( instance_id :String){
-        super(instance_id);
-    }
 
     add_connector ( connector:Connector ){
         this.connectors.push(connector);
     }
 
     remove_connector ( connector:Connector ){
-        this.connectors.splice(this.connectors.indexOf(connector));
+        this.connectors.splice(this.connectors.indexOf(connector), 1 );
     }
 }
 
 export class InputJoint extends Joint{
-    type:String = 'input';
+
+    type:JointType = JointType.INPUT;
+
     connector:Connector;
 
-    constructor( instance_id :String){
-        super(instance_id);
-    }
 
     add_connector ( connector:Connector ){
         this.connector = connector;
