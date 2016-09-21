@@ -10,16 +10,19 @@ export class ENode  extends EditorElement{
     output_joints : OutputJoint[];
     input_joints : InputJoint[];
 
-	constructor( class_id:String, instance_id:String ) {
+	constructor( class_id:String, instance_id?:String ) {
         super();
 
         this.class_id = class_id;
         this.instance_id = instance_id;
 
-
 	}
 
     createUI(){
-
+        this.element
     }
+}
+
+export class ENodeTemplate extends ENode {
+
 }

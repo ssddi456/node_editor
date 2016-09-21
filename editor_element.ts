@@ -1,9 +1,11 @@
 
 
 export class EditorElement{
-    element:SVGAElement;
+    element:d3.Selection<Object>;
 
-    set_view ( element:SVGAElement){
+    pos : { x : number, y : number };
+
+    set_view ( element:d3.Selection<Object>){
         this.element = element;
     }
 

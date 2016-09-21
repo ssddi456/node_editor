@@ -5,8 +5,6 @@ export class Connector extends EditorElement{
     input_node:InputJoint;
     output_node:OutputJoint;
 
-    element : SVGAElement;
-
     constructor( input_node:InputJoint, output_node :OutputJoint ){
         super();
         this.input_node = input_node;
@@ -14,6 +12,13 @@ export class Connector extends EditorElement{
     }
 
     draw (){
+        this.element
+            .attr({
+                x1 : this.input_node.pos.x, 
+                y1 : this.input_node.pos.y,
 
+                x2 : this.output_node.pos.x, 
+                y2 : this.output_node.pos.y,
+            });
     }
 }

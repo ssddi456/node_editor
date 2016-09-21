@@ -4,12 +4,8 @@
         "sourceMap": false,
         "outDir": "./output"
     },
-    "files": [
-        "./typings/index.d.ts",
-        "./app.ts"
-    ],
-    "exclude" : [
-        "./output",
-        "node_modules"
+    "exclude": [
+        "node_modules",
+        "./output"
     ]
 }
