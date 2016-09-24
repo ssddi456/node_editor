@@ -2,7 +2,8 @@
     "compilerOptions": {
         "module": "commonjs",
         "sourceMap": false,
-        "outDir": "./output"
+        "outDir": "./output",
+        "watch": true
     },
     "exclude": [
         "node_modules",
