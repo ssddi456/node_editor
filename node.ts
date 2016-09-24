@@ -46,10 +46,6 @@ export class ENode extends EditorElement implements NodeData{
         this.pos.y = initdata.pos.y;
 	}
 
-    createUI(){
-        this.element
-    }
-
     draw(){
 
     }

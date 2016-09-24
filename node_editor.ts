@@ -3,15 +3,15 @@ import {Joint,JointType,InputJoint,OutputJoint} from './joint';
 import {Connector,ConnectorData} from './connector';
 import {Position} from './editor_element';
 
-interface NodeEditorData {
+export interface NodeEditorData {
     node_template_list : ENodeTemplateData[],
     node_list : NodeData[],
     connecter_list : ConnectorData[],
 };
 
-export class NodeEditer{
+export class NodeEditor{
 
-    static instance:NodeEditer;
+    static instance:NodeEditor;
 
     view: d3.selection.Group;
     node_list:ENode[];
@@ -20,12 +20,10 @@ export class NodeEditer{
         [key:string] : Joint
     }
 
-    constructor( view:d3.selection.Group, initdata:NodeEditorData ){
-        if( NodeEditer.instance ){
-            return NodeEditer.instance;
+    constructor( initdata:NodeEditorData ){
+        if( NodeEditor.instance ){
+            return NodeEditor.instance;
         }
-
-        this.view = view;
 
         this.load_node_template(initdata.node_template_list);
         this.load_nodes(initdata.node_list);
