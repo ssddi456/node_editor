@@ -1,6 +1,7 @@
-import {OutputJoint, InputJoint, JointData} from './joint';
-import {EditorElement, EditorElementData} from './editor_element';
+import {OutputJoint, InputJoint, JointData,JointViewParam} from './joint';
+import {Position, EditorElement, EditorElementData} from './editor_element';
 import * as util from './util';
+import * as d3 from 'd3';
 
 export interface NodeData  extends EditorElementData{
     class_id : string;
@@ -16,11 +17,38 @@ interface NodeConstructor extends Function{
 
 }
 
+export interface ENodeView {
+    main:d3.Selection<Object>;
+
+    title:d3.Selection<Object>;
+    title_bg:d3.Selection<Object>;
+    title_text:d3.Selection<Object>;
+
+    body:d3.Selection<Object>;
+    body_bg:d3.Selection<Object>;
+
+    input_joints:d3.Selection<Object>;
+    output_joints:d3.Selection<Object>;
+}
+
+interface ENodeViewParameter{
+    title_height:number;
+    body_width:number;
+    body_height:number;
+}
+
 export class ENode extends EditorElement implements NodeData{
     instance_id : string;
     class_id : string;
     name : string;
     data : Object; 
+
+    element: ENodeView;
+    element_parameter : ENodeViewParameter = {
+        title_height : 20,
+        body_width : 300,
+        body_height : 120
+    };
 
     output_joints : OutputJoint[];
     input_joints : InputJoint[];
@@ -46,8 +74,167 @@ export class ENode extends EditorElement implements NodeData{
         this.pos.y = initdata.pos.y;
 	}
 
-    draw(){
+    init_view ( parent:d3.Selection<Object> ){
 
+        var main = parent.append('g');
+        var body_bg = util.add_background( util.d3_get(main), main, {});
+        body_bg.attr({
+            opacity : 0.6
+        });
+
+        var title = main.append('g');
+        var title_bg = util.add_background( util.d3_get(title), title, 
+                        {
+                            fill : 'url(#title_bg_color)'
+                        });
+
+        var title_text = title.append('svg:text')
+                            .attr({
+                                'font-size' : "16px",
+                                'font-weight' : 'bolder',
+                                x : 0,
+                                y : 0
+                            })
+                            .append('tspan')
+
+
+        var body = main.append('g')
+                    .attr({
+                        'transform' : 'translate(0,' + this.element_parameter.title_height + ')'
+                    });
+
+
+        var joint_top = this.element_parameter.title_height + 5;
+        var input_joints = main.append('g')
+                                .attr({
+                                    'transform' : 'translate(0,' + joint_top + ')'
+                                });
+
+        var joint_param = <JointViewParam>{
+            width : this.element_parameter.body_width,
+            left : this.pos.x 
+        };
+
+
+        this.input_joints.forEach(( joint, idx )=>{
+            joint_param.top = ( idx * 20 ) + joint_top + this.pos.y;
+            joint.init_view( 
+                input_joints
+                    .append('g')
+                    .attr({
+                        'transform': 'translate(0,' + ( idx * 20 )+')'
+                    }),
+                joint_param);
+        });
+        var last = this.input_joints.length;
+        var output_joints = main.append('g')
+                                .attr({
+                                    'transform' : 'translate(0,' + (joint_top + last * 20 ) + ')'
+                                });
+
+        this.output_joints.forEach(( joint, idx )=>{
+            joint_param.top = ( (idx + last) * 20 ) + joint_top + this.pos.y;
+            joint.init_view( 
+                output_joints
+                    .append('g')
+                    .attr('transform', 'translate(0,' + (  idx * 20 )+')'),
+                joint_param );
+        });
+
+        this.element = {
+            main,
+            title,
+            title_bg,
+            title_text,
+
+            body,
+            body_bg,
+
+            input_joints,
+            output_joints
+        };
+
+
+        this.bind_event();
+    }
+
+    bind_event (){
+        var drag_node = d3.behavior.drag();
+
+        var origin_cursor_point:Position = {
+            x : 0,
+            y : 0
+        };
+        var last_move_pos :Position = {
+            x:0,
+            y:0
+        };
+        
+        var joint_updater:JointViewParam= {
+            left : 0,
+            top  : 0,
+            width : this.element_parameter.body_width
+        };
+
+        drag_node.on('dragstart', ()=>{
+            var e = <MouseEvent>(d3.event.sourceEvent);
+            var target = e.target;
+            // 这里并不能很好的解决点到svg的element上的offset，需要修正。
+            origin_cursor_point.x = e.offsetX; 
+            origin_cursor_point.y = e.offsetY;
+        });
+        drag_node.on('drag', ()=>{
+            var e = <Position>d3.event;
+            last_move_pos = {
+                x : e.x - origin_cursor_point.x,
+                y : e.y - origin_cursor_point.y
+            };
+
+            joint_updater.left = last_move_pos.x;
+            joint_updater.top = last_move_pos.y + this.element_parameter.title_height + 5;
+
+            util.move_group(this.element.main, last_move_pos);
+
+            this.input_joints.forEach(( joint, idx ) => {
+                joint.on_drag(joint_updater) 
+                joint_updater.top += 20;
+            })
+            this.output_joints.forEach(( joint, idx ) => {
+                joint.on_drag(joint_updater);
+                joint_updater.top += 20; 
+            })
+        });
+        drag_node.on('dragend', ()=>{
+            this.pos.x = last_move_pos.x;
+            this.pos.y = last_move_pos.y;
+        });
+
+        
+        this.element.main.call(drag_node);
+    }
+    
+
+    draw(){
+        var element = this.element;
+        var ep = this.element_parameter;
+
+        element.main.attr({
+           'transform' : 'translate(' + this.pos.x  + ',' + this.pos.y + ')'
+        })
+        element.title_text.text( this.name + '#' + this.instance_id );
+
+        util.add_background( util.d3_get(element.title), element.title, {
+            width : ep.body_width,
+        }, element.title_bg);
+
+        util.add_background( util.d3_get(element.main), element.main, {
+            width : ep.body_width,
+            height : ep.body_height + ep.title_height
+        }, element.body_bg);
+
+
+        this.input_joints.forEach(( joint ) =>{ joint.draw() });
+        this.output_joints.forEach(( joint ) =>{ joint.draw() });
     }
 
     toJSON():NodeData{
@@ -57,7 +244,7 @@ export class ENode extends EditorElement implements NodeData{
             name : this.name,
             data : this.data,
             pos : { 
-                x : this.pos.x , 
+                x : this.pos.x, 
                 y : this.pos.y 
             },
             output_joints : this.output_joints.map(function( joint ) {

@@ -1,0 +1,43 @@
+html, body{
+    margin: 0;
+    padding: 0;
+}
+
+#tool-bar {
+    height: 60px;
+    background-color: aliceblue;
+    border-bottom: 1px solid darkslateblue;
+}
+
+.full-contain{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+
+.main-container{
+    top: 60px;
+}
+
+.main-view{
+    right: 20%;
+    border-right: 1px solid darkslateblue;
+    padding: 0px;
+}
+#main-view{
+}
+
+.node-template{
+    left: 80%;
+    padding: 20px;
+}
+
+#node-template{
+}
+
+svg text {
+    fill : white;
+}

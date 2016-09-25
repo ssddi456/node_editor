@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone="no"?>
+<!--Created with Sketsa SVG Editor (http://www.kiyut.com)-->
+<svg contentScriptType="text/ecmascript" width="600.0px" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full"
+    zoomAndPan="magnify" contentStyleType="text/css" height="600.0px" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+    version="1.0">
+    <image x="0.0" y="0.0" transform="matrix(1.0 0.0 0.0 1.0 -1068.6666 -436.66666)" width="1920" xlink:href=
+        "UpdatedUI.jpg"
+        height="1024" preserveAspectRatio="none"/>
+    <!-- background -->
+    <rect x="197.0" y="88.0" fill-opacity="0.4" transform="matrix(1.0 0.0 0.0 1.0 -5.0 1.0)" fill="#191b18" width="177.0"
+        height="468.0" stroke="#262626" stroke-opacity="0.4"/>
+    <!-- title -->
+    <rect fill="none" x="196.0" width="174.0" y="91.0" height="22.0" stroke="#000000"/>
+    <!-- body -->
+    <rect fill="none" x="198.0" width="172.0" y="113.0" height="448.0" stroke="#000000"/>
+    <!-- joint line -->
+    <rect fill="none" x="197.0" width="171.0" y="112.0" height="30.0" stroke="#000000"/>
+    <!-- input node -->
+    <ellipse transform="matrix(1.0 0.0 0.0 1.0 -3.0 0.0)" fill="none" rx="7.0" cx="217.0" ry="7.0" cy="128.0" stroke="#000000"/>
+    <!-- output node -->
+    <ellipse transform="matrix(1.0 0.0 0.0 1.0 136.0 0.0)" fill="none" rx="7.0" cx="217.0" ry="7.0" cy="128.0" stroke="#000000"/>
+    <!-- joint data -->
+    <rect x="224.0" y="119.0" transform="matrix(1.0 0.0 0.0 1.0 2.0 1.0)" fill="none" width="113.0" height="16.0"
+        stroke="#000000"/>
+</svg>

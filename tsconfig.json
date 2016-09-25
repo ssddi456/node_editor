@@ -3,10 +3,11 @@
         "module": "commonjs",
         "sourceMap": false,
         "outDir": "./output",
-        "watch": true
+        "watch": true,
+        "allowJs": true
     },
     "exclude": [
         "node_modules",
-        "./output"
+        "output"
     ]
 }

@@ -11,7 +11,7 @@ export abstract class EditorElement implements EditorElementData{
 
     instance_id : string;
 
-    element:d3.Selection<Object>;
+    element: Object;
 
     pos : Position;
 
@@ -22,9 +22,10 @@ export abstract class EditorElement implements EditorElementData{
       };
     }
 
-    set_view ( element:d3.Selection<Object>){
-        this.element = element;
+    create_view(parent: d3.Selection<Object>, option?: Object){
+        this.init_view(parent, option);
+        this.draw();
     }
-
+    abstract init_view( parent: d3.Selection<Object>, option?: Object) 
     abstract draw ()
 }

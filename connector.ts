@@ -7,10 +7,15 @@ export interface ConnectorData {
     input_id : string;
 }
 
+export interface ConnectorView {
+    node: d3.Selection<Object>
+}
+
 export class Connector extends EditorElement{
     input_node:InputJoint;
     output_node:OutputJoint;
     is_destroyed:boolean = false;
+    element:ConnectorView;
 
     constructor( input_node:InputJoint, output_node :OutputJoint ){
         super();
@@ -26,9 +31,22 @@ export class Connector extends EditorElement{
         this.output_node.remove_connector(this);
         this.is_destroyed = true;
     }
+    init_view (parent:d3.Selection<Object>){
+        var node = parent.append('line')
+                    .attr({
+                        stroke : 'white'
+                    })
+        this.element = {
+            node
+        };
+
+        node.on('mousedown', function(){
+
+        });
+    }
 
     draw (){
-        this.element
+        this.element.node
             .attr({
                 x1 : this.input_node.pos.x, 
                 y1 : this.input_node.pos.y,

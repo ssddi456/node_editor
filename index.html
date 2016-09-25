@@ -3,19 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Document</title>
+  <link rel="stylesheet" href="./main.css">
 </head>
 <body>
 
     <div id="tool-bar"></div>
-    <div>
-      <div id="main-view"></div>
-      <div id="node-template"></div>
+    <div class="full-contain main-container">
+      <div class="full-contain main-view">
+        <div id="main-view"></div>
+      </div>
+      <div class="full-contain node-template">
+        <div id="node-template"></div>
+      </div>
     </div>
   
+    <script>
 
-    <script src="http://cdn.staticfile.org/d3/3.5.10/d3.js"></script>
+    </script>
+    <script data-main="./output/setup" src="http://cdn.staticfile.org/require.js/2.1.22/require.min.js"></script>
+
     <script src="http://cdn.staticfile.org/jquery/2.2.1/jquery.js"></script>
-    <script src="http://cdn.staticfile.org/knockout/3.4.0/knockout-min.js"></script>
-    <script src="./output/app.js" ></script>
 </body>
 </html>

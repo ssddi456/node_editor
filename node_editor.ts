@@ -14,10 +14,18 @@ export class NodeEditor{
     static instance:NodeEditor;
 
     view: d3.selection.Group;
-    node_list:ENode[];
-    connector_list:Connector[];
+    node_list:ENode[] = [];
+    connector_list:Connector[] = [];
     joint_map : {
-        [key:string] : Joint
+        [key:string] : Joint,
+    } = {};
+    
+    add_to_joint_map ( joint:Joint ){
+        if( joint.instance_id in this.joint_map ){
+            throw new Error('instance_id already exists ' + joint.instance_id);
+        }
+
+        this.joint_map[joint.instance_id] = joint;
     }
 
     constructor( initdata:NodeEditorData ){
@@ -30,6 +38,20 @@ export class NodeEditor{
         this.load_connecters(initdata.connecter_list);
     }
 
+    create_view( parent:d3.Selection<Object> ){
+        // 保证node层不会被连接线挡住
+        var connector_group = parent.append('g');
+        var node_group = parent.append('g');
+
+        this.node_list.forEach(( node )=>{
+            node.create_view( node_group );
+        });
+
+        this.connector_list.forEach(( connector )=>{
+            connector.create_view( connector_group);
+        });
+    }
+
     load_node_template (nodetemplatelist:ENodeTemplateData[]){
         nodetemplatelist.forEach(( node )=>{
             ENodeTemplate.create_template( node );
@@ -39,19 +61,24 @@ export class NodeEditor{
     load_nodes( nodelist:NodeData[]){
         nodelist.forEach(( node )=>{
             var node_template = NodeTypes[node.class_id];
+            if(!node_template ){
+                node_template = new ENodeTemplate();
+            }
+
             var enode = node_template.create_enode(node);
 
             enode.name = node.name;
 
             this.node_list.push( enode );
 
+            
             // save joints here;
             enode.output_joints.forEach(( joint )=>{
-                this.joint_map[ joint.instance_id] = joint;
+                this.add_to_joint_map(joint);
             });
 
             enode.input_joints.forEach(( joint ) =>{
-                this.joint_map[ joint.instance_id] = joint;
+                this.add_to_joint_map(joint);
             });
         });
     }
