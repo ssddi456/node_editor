@@ -5,7 +5,7 @@ import {Position} from './editor_element';
 import {NodeEditor,NodeEditorData} from './node_editor';
 import * as ko from "knockout";
 import * as d3 from "d3";
-import * as $ from "jquery";
+
 
 var template_list_vm = {
 
@@ -110,7 +110,8 @@ main_view_container
       width : main_view.width(),
       height : main_view.height()
     })
- 
+
+
 
 export let init = () => {
   ko.applyBindings(toolbar_vm, document.getElementById('tool-bar'));

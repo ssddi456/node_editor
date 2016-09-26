@@ -76,9 +76,32 @@ export abstract class Joint extends EditorElement implements JointData{
             node,
             text
         };
+
         this.update_node_center(option);
+
+        this.bind_event();
     }
 
+    bind_event () {
+
+        var node = this.element.node;
+        node.on('mousedown', ()=>{
+            (<MouseEvent>d3.event).stopPropagation();
+
+            if( this.editor ){
+                // should implements by editor; 
+                this.editor.start_add_connector( this );
+            }
+        });
+
+        node.on('mouseup', ()=>{
+            (<MouseEvent>d3.event).stopPropagation();
+
+            if( this.editor &&　this.editor.end_add_connector ){
+                this.editor.end_add_connector(this);
+            }
+        });
+    }
 
     toJSON (): JointData{
         return {

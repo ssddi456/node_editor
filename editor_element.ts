@@ -1,3 +1,5 @@
+import {NodeEditor} from './node_editor';
+
 export interface EditorElementData {
     instance_id : string;
     pos : { x : number, y : number }  
@@ -12,6 +14,8 @@ export abstract class EditorElement implements EditorElementData{
     instance_id : string;
 
     element: Object;
+
+    editor: NodeEditor;
 
     pos : Position;
 

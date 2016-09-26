@@ -177,14 +177,14 @@ export class ENode extends EditorElement implements NodeData{
         };
 
         drag_node.on('dragstart', ()=>{
-            var e = <MouseEvent>(d3.event.sourceEvent);
+            var e = <MouseEvent>(<d3.BaseEvent>d3.event).sourceEvent;
             var target = e.target;
-            // 这里并不能很好的解决点到svg的element上的offset，需要修正。
+            // TODO:这里并不能正确获取相对根的offset，需要修正。
             origin_cursor_point.x = e.offsetX; 
             origin_cursor_point.y = e.offsetY;
         });
         drag_node.on('drag', ()=>{
-            var e = <Position>d3.event;
+            var e = <MouseEvent>d3.event;
             last_move_pos = {
                 x : e.x - origin_cursor_point.x,
                 y : e.y - origin_cursor_point.y

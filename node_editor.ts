@@ -1,7 +1,8 @@
 import {ENode,ENodeTemplate,NodeData,NodeTypes, ENodeTemplateData} from './node';
-import {Joint,JointType,InputJoint,OutputJoint} from './joint';
+import {Joint,JointType,InputJoint,OutputJoint,JointData} from './joint';
 import {Connector,ConnectorData} from './connector';
 import {Position} from './editor_element';
+import * as util from './util';
 
 export interface NodeEditorData {
     node_template_list : ENodeTemplateData[],
@@ -20,11 +21,17 @@ export class NodeEditor{
         [key:string] : Joint,
     } = {};
     
+    end_add_connector: Function;
+
+    container : d3.Selection<Object>;
+    node_container : d3.Selection<Object>;
+    connector_container : d3.Selection<Object>;
+
     add_to_joint_map ( joint:Joint ){
         if( joint.instance_id in this.joint_map ){
             throw new Error('instance_id already exists ' + joint.instance_id);
         }
-
+        joint.editor = this;
         this.joint_map[joint.instance_id] = joint;
     }
 
@@ -39,16 +46,25 @@ export class NodeEditor{
     }
 
     create_view( parent:d3.Selection<Object> ){
+        this.container = parent;
+
         // 保证node层不会被连接线挡住
-        var connector_group = parent.append('g');
-        var node_group = parent.append('g');
+        var connector_container = this.node_container = parent.append('g');
+        var node_container = this.connector_container = parent.append('g');
 
         this.node_list.forEach(( node )=>{
-            node.create_view( node_group );
+            node.create_view( node_container );
         });
 
         this.connector_list.forEach(( connector )=>{
-            connector.create_view( connector_group);
+            connector.create_view( connector_container);
+        });
+
+
+        parent.on('mouseup', ()=>{
+            if( this.end_add_connector ){
+                this.end_add_connector();
+            }
         });
     }
 
@@ -131,38 +147,82 @@ export class NodeEditor{
         }
     }
 
-    start_add_connector ( startjoint:Joint ) : boolean | Object {
+    start_add_connector ( startjoint:Joint ){
         if( startjoint.type == JointType.INPUT && (<InputJoint>startjoint).connector ){
-            return false;
+            return;
         }
-        var self = this;
-        return {
-            can_add_connector : (endjoint:Joint) :boolean=>{
-               return startjoint.type != endjoint.type;
-            },
-            end_add_connector : function(endjoint?:Joint) : boolean {
-                if( !endjoint ){
-                    return false;
-                }
-                if( !this.can_add_connector(endjoint) ){
-                    return false;
-                }
+        var fake_joint;
+        var temp_coonector :Connector;
 
-                var params = [startjoint, endjoint];
-
-                if( startjoint.type == JointType.INPUT ){
-
-                } else {
-                    params.reverse();
-                }
-
-                self.add_connector.call(self, ...params);
+        var fake_joint_data:JointData ={
+            type : '',
+            instance_id : util.uuid(),
+            jointdata :{},
+            pos : {
+                x : startjoint.pos.x,
+                y : startjoint.pos.y
             }
+        };
+
+        if( startjoint instanceof InputJoint ){
+            fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data);
+            temp_coonector = new Connector(startjoint, fake_joint);
+        } else if ( startjoint instanceof OutputJoint ){
+            fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data);
+            temp_coonector = new Connector(fake_joint, startjoint);
         }
+
+        temp_coonector.create_view( this.connector_container);
+
+        this.container.on('mousemove', ()=>{
+            var e = <MouseEvent>d3.event;
+            fake_joint.pos.x = e.x;
+            fake_joint.pos.y = e.y;
+
+            temp_coonector.draw();
+        })
+
+        var can_add_connector = (endjoint:Joint) :boolean =>{
+            return startjoint.type != endjoint.type;
+        };
+
+        this.end_add_connector = (endjoint?:Joint)=>{
+            console.log("end_add_connector", endjoint);
+
+            this.end_add_connector = undefined;
+
+            if( !endjoint ){
+                return;
+            }
+            if( !can_add_connector(endjoint) ){
+                return;
+            }
+
+
+            var params = [startjoint, endjoint];
+
+            if( startjoint.type == JointType.INPUT ){
+                // pass
+            } else {
+                params.reverse();
+            }
+
+            this.add_connector.call(this, ...params, temp_coonector);
+        };
     }
 
-    add_connector( inputjoint:InputJoint, outputjoint:OutputJoint ){
-        this.connector_list.push(new Connector(inputjoint, outputjoint));
+    
+
+    add_connector( inputjoint:InputJoint, outputjoint:OutputJoint, temp_coonector:Connector ){
+
+        temp_coonector.input_node = inputjoint;
+        temp_coonector.output_node = outputjoint;
+        // add same start end check here
+
+        temp_coonector.draw();
+
+        this.connector_list.push( temp_coonector );
+
     }
 
     remove_connector( connector:Connector){
