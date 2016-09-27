@@ -1,6 +1,10 @@
+import {ENode} from './node';
+import {NodeEditor} from './node_editor';
 import {Connector} from './connector';
-import {EditorElement, EditorElementData} from './editor_element';
+import {EditorElementData, EditorElement} from './editor_element';
 import * as util from './util';
+import * as d3 from 'd3';
+
 
 export abstract class JointType {
     static OUTPUT: string = "output";
@@ -29,6 +33,9 @@ export abstract class Joint extends EditorElement implements JointData{
     type:string;
     jointdata : Object;
     element:JointView;
+    editor:NodeEditor;
+
+    node:ENode;
 
     constructor( instance_id : string, initdata : JointData ){
         super();

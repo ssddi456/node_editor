@@ -49,8 +49,8 @@ export class NodeEditor{
         this.container = parent;
 
         // 保证node层不会被连接线挡住
-        var connector_container = this.node_container = parent.append('g');
-        var node_container = this.connector_container = parent.append('g');
+        var connector_container = this.connector_container = parent.append('g');
+        var node_container = this.node_container = parent.append('g');
 
         this.node_list.forEach(( node )=>{
             node.create_view( node_container );
@@ -152,8 +152,8 @@ export class NodeEditor{
             return;
         }
         var fake_joint;
-        var temp_coonector :Connector;
-
+        var temp_connector :Connector;
+        
         var fake_joint_data:JointData ={
             type : '',
             instance_id : util.uuid(),
@@ -166,62 +166,71 @@ export class NodeEditor{
 
         if( startjoint instanceof InputJoint ){
             fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data);
-            temp_coonector = new Connector(startjoint, fake_joint);
+            temp_connector = new Connector(startjoint, fake_joint);
         } else if ( startjoint instanceof OutputJoint ){
             fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data);
-            temp_coonector = new Connector(fake_joint, startjoint);
+            temp_connector = new Connector(fake_joint, startjoint);
         }
 
-        temp_coonector.create_view( this.connector_container);
+        temp_connector.create_view( this.connector_container );
 
         this.container.on('mousemove', ()=>{
             var e = <MouseEvent>d3.event;
-            fake_joint.pos.x = e.x;
-            fake_joint.pos.y = e.y;
 
-            temp_coonector.draw();
+            fake_joint.pos.x = e.layerX;
+            fake_joint.pos.y = e.layerY;
+
+            temp_connector.draw();
         })
 
-        var can_add_connector = (endjoint:Joint) :boolean =>{
-            return startjoint.type != endjoint.type;
+        var can_add_connector = (input_joint:InputJoint, output_joint:OutputJoint) :boolean =>{
+
+            var ret = input_joint.type != output_joint.type 
+                    && input_joint.node != output_joint.node
+                    && output_joint.connectors.indexOf(input_joint.connector) == -1;
+ 
+            return ret;
         };
 
         this.end_add_connector = (endjoint?:Joint)=>{
             console.log("end_add_connector", endjoint);
-
             this.end_add_connector = undefined;
+
+            temp_connector.destroy();
 
             if( !endjoint ){
                 return;
             }
-            if( !can_add_connector(endjoint) ){
+
+            var input_node :InputJoint;
+            var output_node:OutputJoint;
+
+            if( startjoint instanceof InputJoint ){
+                output_node = <OutputJoint>endjoint;
+                input_node = startjoint;
+            } else {
+                input_node = <InputJoint>endjoint;
+                output_node = <OutputJoint>startjoint;
+            }
+
+
+            if( !can_add_connector(input_node, output_node) ){
                 return;
             }
 
 
-            var params = [startjoint, endjoint];
-
-            if( startjoint.type == JointType.INPUT ){
-                // pass
-            } else {
-                params.reverse();
-            }
-
-            this.add_connector.call(this, ...params, temp_coonector);
+            this.add_connector(input_node, output_node);
         };
     }
 
     
 
-    add_connector( inputjoint:InputJoint, outputjoint:OutputJoint, temp_coonector:Connector ){
+    add_connector( inputjoint:InputJoint, outputjoint:OutputJoint){
 
-        temp_coonector.input_node = inputjoint;
-        temp_coonector.output_node = outputjoint;
-        // add same start end check here
+        var connector = new Connector(inputjoint, outputjoint);
+        connector.create_view( this.connector_container);
 
-        temp_coonector.draw();
-
-        this.connector_list.push( temp_coonector );
+        this.connector_list.push( connector );
 
     }
 

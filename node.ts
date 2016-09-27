@@ -62,12 +62,16 @@ export class ENode extends EditorElement implements NodeData{
         this.name = initdata.name;
         this.data = initdata.data;
 
-        this.output_joints = initdata.output_joints.map(function( node:JointData ) {
-            return new OutputJoint(node.instance_id || util.uuid(), node);
+        this.output_joints = initdata.output_joints.map(( node:JointData )=> {
+            var joint = new OutputJoint(node.instance_id || util.uuid(), node);
+            joint.node = this;
+            return joint;
         });
 
-        this.input_joints = initdata.input_joints.map(function( node:JointData ) {
-            return new InputJoint(node.instance_id || util.uuid(), node);
+        this.input_joints = initdata.input_joints.map(( node:JointData )=> {
+            var joint = new InputJoint(node.instance_id || util.uuid(), node);
+            joint.node = this;
+            return joint 
         });
 
         this.pos.x = initdata.pos.x;

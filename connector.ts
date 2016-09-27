@@ -29,6 +29,9 @@ export class Connector extends EditorElement{
     destroy(){
         this.input_node.remove_connector(this);
         this.output_node.remove_connector(this);
+        if( this.element ){
+            this.element.node.remove();
+        }
         this.is_destroyed = true;
     }
     init_view (parent:d3.Selection<Object>){
