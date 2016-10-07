@@ -1,4 +1,4 @@
-import {ENode,ENodeTemplate,NodeData,NodeTypes, ENodeTemplateData} from './node';
+import {ENode,ENodeTemplate,NodeData, ENodeTemplateData} from './node';
 import {Joint,JointType,InputJoint,OutputJoint} from './joint';
 import {Connector,ConnectorData} from './connector';
 import {Position} from './editor_element';
@@ -67,15 +67,20 @@ var editor_vm = {
     node_template_list : [],
     connecter_list : [{
       input_id : '3',
-      output_id : '2',
-      instance_id : '23123'
-    }]
+      output_id : '2'
+    }],
+    menu : {}
   })
 };
 
 
 var main_view = $('.main-view');
-var svg = d3.select('#main-view').append('svg');
+var svg = d3.select('#main-view')
+            .append('svg')
+            .attr({
+              width : main_view.width(),
+              height : main_view.height()
+            })
 var defs =svg.append('defs');
 var title_bg_color = defs.append('linearGradient')
                       .attr({
@@ -95,29 +100,33 @@ title_bg_color.append('stop')
                   'stop-opacity' : '0'
                 });
 
-
-var main_view_container = svg
-                              .attr({
-                                width : main_view.width(),
-                                height : main_view.height()
-                              })
-                              .append('svg:g');
-
-main_view_container
+var top = svg.append('svg:g');
+var bg = top
   .append('svg:rect')
     .attr({
       fill : '#262626',
       width : main_view.width(),
       height : main_view.height()
-    })
+    });
+var zoomable_container = top.append('svg:g');
 
+var zoom = d3.behavior.zoom()
+            .scaleExtent([0.1, 2])
+            .on('zoom', redraw);
+bg.call(zoom);
 
+function redraw() {
+  zoomable_container
+    .attr('transform', 
+        'translate(' + d3.event.translate + ')' +
+        ' scale(' + d3.event.scale + ')');
+}
 
 export let init = () => {
   ko.applyBindings(toolbar_vm, document.getElementById('tool-bar'));
   ko.applyBindings(editor_vm, document.getElementById('main-view'));
   ko.applyBindings(template_list_vm, document.getElementById('node-template'));
 
-  editor_vm.main_app.create_view(main_view_container);
+  editor_vm.main_app.create_view(top, zoomable_container);
 };
 

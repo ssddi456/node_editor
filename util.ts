@@ -20,11 +20,25 @@ interface BackgroundOption{
 }
 
 export function add_background( 
-  element:SVGLocatable,
+  element:SVGElement|d3.Selection<Object>,
   parent: d3.Selection<Object>,
   option: BackgroundOption,
   background?:d3.Selection<Object>
 ): d3.Selection<Object>{
+
+  if( 'getBBox' in element ){
+  } else {
+    element = d3_get(<d3.Selection<Object>>element);
+  }
+
+  if( background ){
+    background.attr({
+      x : 0,
+      y : 0,
+      widdth: 0,
+      height : 0
+    });
+  }
   var bbox = element.getBBox();
   
   if( !background ){
@@ -42,10 +56,8 @@ export function add_background(
 
   background
         .attr({
-          'width' : (option.width || bbox.width) +
-                      2 * (padding),
-          'height' : (option.height || bbox.height) +
-                      2 * (padding),
+          'width' : (option.width || bbox.width) + 2 * padding,
+          'height' : (option.height || bbox.height) + 2 * padding,
           'x'  : bbox.x - padding,
           'y'  : bbox.y - padding,
         })
@@ -53,10 +65,29 @@ export function add_background(
   return background;
 }
 
-export function d3_get( el:d3.Selection<Object>):SVGLocatable{
+export function d3_get( el:d3.Selection<Object>):SVGElement{
   return <any>el[0][0];
 }
 
 export function move_group( group:d3.Selection<Object>, pos:Position ){
   group.attr({ transform : 'translate(' + pos.x +','+ pos.y + ')'})
+}
+
+export function find_instance( el:d3.Selection<Object>|SVGElement) {
+  if( el instanceof SVGElement ){
+
+  } else {
+    el = d3_get(<d3.Selection<Object>>el);
+  }
+
+  var _el = <Element>(<SVGElement>el);
+
+  while( _el ){
+    var instance_id = _el.getAttribute('instance_id');
+    if( instance_id ){
+      return instance_id;
+    }
+
+    _el = _el.parentElement;
+  }
 }

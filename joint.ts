@@ -1,4 +1,5 @@
 import {Connector} from './connector';
+import {ENode} from './node';
 import {EditorElement, EditorElementData} from './editor_element';
 import * as util from './util';
 
@@ -29,9 +30,10 @@ export abstract class Joint extends EditorElement implements JointData{
     type:string;
     jointdata : Object;
     element:JointView;
+    node : ENode;
 
     constructor( instance_id : string, initdata : JointData ){
-        super();
+        super(instance_id);
 
         this.instance_id  = instance_id;
         this.jointdata = initdata.jointdata
@@ -55,14 +57,15 @@ export abstract class Joint extends EditorElement implements JointData{
     }
 
     init_view(container:d3.Selection<Object>, option:JointViewParam ){
-
-        var node = container.append('circle')
-                    .attr({
-                        cx : (this.type == JointType.INPUT) ? 15 : (option.width - 30 ),
-                        r : 5,
-                        fill : 'white',
-                        stroke : '1px soild white' 
-                    });
+        if ( this instanceof InputJoint ){
+            var node = container.append('circle')
+                        .attr({
+                            cx : 15,
+                            r : 5,
+                            fill : 'white',
+                            stroke : '1px soild white' 
+                        });
+        }
 
         var text = container.append('text')
                     .attr({
@@ -70,6 +73,16 @@ export abstract class Joint extends EditorElement implements JointData{
                         y : 5,
                     })
                     .append('tspan')
+
+        if ( this instanceof OutputJoint ){
+            var node = container.append('circle')
+                        .attr({
+                            cx : option.width - 30,
+                            r : 5,
+                            fill : 'white',
+                            stroke : '1px soild white' 
+                        });
+        }
 
         this.element = {
             container,
@@ -85,8 +98,10 @@ export abstract class Joint extends EditorElement implements JointData{
     bind_event () {
 
         var node = this.element.node;
-        node.on('mousedown', ()=>{
-            (<MouseEvent>d3.event).stopPropagation();
+        node.on('mousedown.add_connector', ()=>{
+            var e = <MouseEvent>d3.event;
+            e.stopPropagation();
+            e.preventDefault();
 
             if( this.editor ){
                 // should implements by editor; 
@@ -94,7 +109,7 @@ export abstract class Joint extends EditorElement implements JointData{
             }
         });
 
-        node.on('mouseup', ()=>{
+        node.on('mouseup.add_connector', ()=>{
             (<MouseEvent>d3.event).stopPropagation();
 
             if( this.editor &&　this.editor.end_add_connector ){
@@ -130,6 +145,7 @@ export class OutputJoint extends Joint{
 
     remove_connector ( connector:Connector ){
         this.connectors.splice(this.connectors.indexOf(connector), 1 );
+        this.safe_draw();
     }
 
     update_connector (){
@@ -144,6 +160,11 @@ export class OutputJoint extends Joint{
             });
 
         element.text.text( JSON.stringify(this.jointdata) + '#' + this.instance_id);
+    }
+
+    destroy (){
+        this.is_destroyed = true;
+        this.connectors.forEach( node => node.destroy() );
     }
 }
 
@@ -161,6 +182,7 @@ export class InputJoint extends Joint{
     remove_connector ( connector:Connector ){
         if( this.connector == connector ){
             this.connector = null;
+            this.safe_draw();
         }
     }
     
@@ -171,6 +193,10 @@ export class InputJoint extends Joint{
     }
     
     draw (){
+        if( this.is_destroyed ){
+            return;
+        }
+
         var element = this.element;
 
         element.node
@@ -179,5 +205,10 @@ export class InputJoint extends Joint{
             });
 
         element.text.text( JSON.stringify(this.jointdata) + '#' + this.instance_id ) ;
+    }
+
+    destroy (){
+        this.is_destroyed = true;
+        this.connector && this.connector.destroy();
     }
 }

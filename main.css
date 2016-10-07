@@ -23,21 +23,27 @@ html, body{
 }
 
 .main-view{
-    right: 20%;
     border-right: 1px solid darkslateblue;
     padding: 0px;
+    background-color: #262626;
 }
 #main-view{
 }
 
-.node-template{
-    left: 80%;
-    padding: 20px;
-}
-
-#node-template{
-}
-
 svg text {
     fill : white;
+}
+
+.menu.hide{
+    visibility:  hidden;
+}
+.menu .menu-item{
+    cursor: pointer;
+}
+
+.menu .menu-item:hover rect{
+    fill: #1B1B1B;
+}
+.menu .menu-item:hover text{
+    font-weight: 700;
 }

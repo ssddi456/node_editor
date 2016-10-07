@@ -1,8 +1,7 @@
 import {OutputJoint, InputJoint} from './joint';
-import {EditorElement, EditorElementData} from './editor_element';
+import {VisibleElement, EditorElementData} from './editor_element';
 
 export interface ConnectorData {
-    instance_id : string;
     output_id : string;
     input_id : string;
 }
@@ -11,11 +10,12 @@ export interface ConnectorView {
     node: d3.Selection<Object>
 }
 
-export class Connector extends EditorElement{
+export class Connector extends VisibleElement{
     input_node:InputJoint;
     output_node:OutputJoint;
-    is_destroyed:boolean = false;
+    
     element:ConnectorView;
+    type = "connector";
 
     constructor( input_node:InputJoint, output_node :OutputJoint ){
         super();
@@ -27,10 +27,13 @@ export class Connector extends EditorElement{
     }
 
     destroy(){
+        this.is_destroyed = true;
         this.input_node.remove_connector(this);
         this.output_node.remove_connector(this);
-        this.is_destroyed = true;
+
+        this.element.node.remove();
     }
+
     init_view (parent:d3.Selection<Object>){
         var node = parent.append('line')
                     .attr({
@@ -39,10 +42,9 @@ export class Connector extends EditorElement{
         this.element = {
             node
         };
-
-        node.on('mousedown', function(){
-
-        });
+    }
+    bind_event(){
+        
     }
 
     draw (){
@@ -57,7 +59,6 @@ export class Connector extends EditorElement{
     }
     toJSON (): ConnectorData{
         return {
-            instance_id : this.instance_id,
             output_id   : this.output_node.instance_id,
             input_id    : this.input_node.instance_id,
         };
