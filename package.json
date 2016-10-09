@@ -1,0 +1,21 @@
+{
+  "name": "node_editor",
+  "version": "1.0.0",
+  "description": "节点编辑器\r ==========",
+  "main": "setup.js",
+  "scripts": {
+    "build": "tsc -w -p . --module amd --sourceMap",
+    "live": "live-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssddi456/node_editor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ssddi456/node_editor/issues"
+  },
+  "homepage": "https://github.com/ssddi456/node_editor#readme"
+}

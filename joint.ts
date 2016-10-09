@@ -31,6 +31,7 @@ export abstract class Joint extends EditorElement implements JointData{
     jointdata : Object;
     element:JointView;
     node : ENode;
+    abstract can_connect(joint:Joint):boolean;
 
     constructor( instance_id : string, initdata : JointData ){
         super(instance_id);
@@ -151,6 +152,12 @@ export class OutputJoint extends Joint{
     update_connector (){
         this.connectors.forEach( connector => connector.draw() );
     }
+
+    can_connect(joint){
+        return joint.type == JointType.INPUT 
+               && this.connectors.indexOf(joint.connector) == -1
+    }
+
     draw (){
         var element = this.element;
 
@@ -191,7 +198,12 @@ export class InputJoint extends Joint{
             this.connector.draw();
         }
     }
-    
+
+    can_connect(joint){
+        return !!!this.connector 
+                && joint.type == JointType.OUTPUT;
+    }
+
     draw (){
         if( this.is_destroyed ){
             return;

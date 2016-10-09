@@ -245,7 +245,7 @@ export class ENode extends EditorElement implements NodeData{
     }
 
     toJSON():NodeData{
-        let joint_data =  function(joint:Joint):JointData{ 
+        let clone_joint =  function(joint:Joint):JointData{ 
             return joint.toJSON();
         };
 

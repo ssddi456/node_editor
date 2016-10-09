@@ -196,11 +196,10 @@ export class NodeEditor{
 
         this.container.on('mousemove.add_connector', mouse_move_handle);
 
-        var can_add_connector = (startjoint:InputJoint, endjoint:OutputJoint) :boolean =>{
-            var ret = !startjoint.connector
-                    && startjoint.type != endjoint.type
-                    && startjoint.node != endjoint.node
-                    && endjoint.connectors.indexOf(startjoint.connector) == -1;
+        var can_add_connector = (startjoint:Joint, endjoint:Joint) :boolean =>{
+            var ret = startjoint.node != endjoint.node
+                    && startjoint.can_connect(endjoint)
+                    && endjoint.can_connect(startjoint);
 
             return ret;
         };
