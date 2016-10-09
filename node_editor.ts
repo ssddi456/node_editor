@@ -57,8 +57,13 @@ export class NodeEditor{
         this.zoomable_container = zoomable_container;
 
         // 保证node层不会被连接线挡住
+<<<<<<< HEAD
         var connector_container = this.connector_container = zoomable_container.append('g');
         var node_container = this.node_container = zoomable_container.append('g');
+=======
+        var connector_container = this.connector_container = parent.append('g');
+        var node_container = this.node_container = parent.append('g');
+>>>>>>> origin/master
 
         this.node_list.forEach(( node )=>{
             node.create_view( node_container );
@@ -206,25 +211,24 @@ export class NodeEditor{
 
         this.end_add_connector = (endjoint?:Joint)=>{
             console.log("end_add_connector", endjoint);
-
             this.end_add_connector = undefined;
             this.container.on('mousemove.add_connector', null);
 
             temp_connector.destroy();
 
-            var params = [startjoint, endjoint];
-
-            if( startjoint.type == JointType.INPUT ){
-                // pass
-            } else {
-                params.reverse();
-            }
 
             if( !endjoint ){
                 return;
             }
-            if( !can_add_connector(<InputJoint>params[0], <OutputJoint>params[1]) ){
+
+            var params = [startjoint, endjoint];
+            if( !can_add_connector(params[0], params[1]) ){
                 return;
+            }
+            if( params[0] instanceof InputJoint ){
+
+            } else {
+                params.reverse();
             }
 
             this.add_connector.call(this, ...params);
@@ -233,6 +237,7 @@ export class NodeEditor{
     }
 
     
+
 
     add_connector( inputjoint:InputJoint, outputjoint:OutputJoint ){
 
