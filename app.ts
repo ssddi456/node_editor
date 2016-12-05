@@ -75,12 +75,15 @@ var editor_vm = {
 
 
 var main_view = $('.main-view');
+var canvas_option = {
+  width : main_view.width(),
+  height : main_view.height()
+};
+
 var svg = d3.select('#main-view')
             .append('svg')
-            .attr({
-              width : main_view.width(),
-              height : main_view.height()
-            })
+            .attr(canvas_option);
+
 var defs =svg.append('defs');
 var title_bg_color = defs.append('linearGradient')
                       .attr({
@@ -101,32 +104,18 @@ title_bg_color.append('stop')
                 });
 
 var top = svg.append('svg:g');
-var bg = top
-  .append('svg:rect')
-    .attr({
-      fill : '#262626',
-      width : main_view.width(),
-      height : main_view.height()
-    });
-var zoomable_container = top.append('svg:g');
 
-var zoom = d3.behavior.zoom()
-            .scaleExtent([0.1, 2])
-            .on('zoom', redraw);
-bg.call(zoom);
 
-function redraw() {
-  zoomable_container
-    .attr('transform', 
-        'translate(' + d3.event.translate + ')' +
-        ' scale(' + d3.event.scale + ')');
-}
+
+
+
 
 export let init = () => {
   ko.applyBindings(toolbar_vm, document.getElementById('tool-bar'));
   ko.applyBindings(editor_vm, document.getElementById('main-view'));
   ko.applyBindings(template_list_vm, document.getElementById('node-template'));
 
-  editor_vm.main_app.create_view(top, zoomable_container);
+  editor_vm.main_app.create_view(top, canvas_option);
+
 };
 

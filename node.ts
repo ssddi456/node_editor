@@ -175,12 +175,40 @@ export class ENode extends EditorElement implements NodeData{
             width : this.element_parameter.body_width
         };
 
+        var current_zoom ={
+            translate : {
+                x : 0,
+                y : 0
+            },
+            scale : 1
+        };
+
         drag_node.on('dragstart', ()=>{
-            var e = <MouseEvent>(<d3.BaseEvent>d3.event).sourceEvent;
+            var e = <d3.MouseEvent>(<d3.BaseEvent>d3.event).sourceEvent;
             var target = e.target;
+            var zoom = this.editor.zoom;
+            var pos = {
+                x : this.pos.x,
+                y : this.pos.y
+            };
+            if( zoom ){
+                var translate = zoom.translate();
+                var scale = zoom.scale();
+
+                current_zoom.translate.x = translate[0];
+                current_zoom.translate.y = translate[1];
+                current_zoom.scale = scale
+
+
+            }
+
             // TODO:这里并不能正确获取相对根的offset，需要修正。
-            origin_cursor_point.x = e.offsetX; 
-            origin_cursor_point.y = e.offsetY;
+            origin_cursor_point.x = (e.offsetX-current_zoom.translate.x)/current_zoom.scale - pos.x;// apply transform
+            origin_cursor_point.y = (e.offsetY-current_zoom.translate.y)/current_zoom.scale - pos.y;// apply transform
+
+
+            console.log( e );
+
         });
         drag_node.on('drag', ()=>{
             var e = <MouseEvent>d3.event;
@@ -218,7 +246,8 @@ export class ENode extends EditorElement implements NodeData{
 
         element.main.attr({
            'transform' : 'translate(' + this.pos.x  + ',' + this.pos.y + ')'
-        })
+        });
+
         element.title_text.text( this.name + '#' + this.instance_id );
 
         util.add_background( util.d3_get(element.title), element.title, {

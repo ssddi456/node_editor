@@ -17,6 +17,8 @@ export class NodeEditor{
     static instance:NodeEditor;
 
     view: d3.selection.Group;
+    zoom : d3.behavior.Zoom<Object>;
+
     node_list:ENode[] = [];
     connector_list:Connector[] = [];
     joint_map : {
@@ -52,18 +54,40 @@ export class NodeEditor{
         this.load_menu(initdata.menu);
     }
 
-    create_view( top:d3.Selection<Object>, zoomable_container:d3.Selection<Object> ){
+    create_view( top:d3.Selection<Object>, canvas_option:{[key:string]:number} ){
+
         this.container = top;
+        var bg = top
+          .append('svg:rect')
+            .attr({
+              fill : '#262626',
+            })
+            .attr(canvas_option);
+        var zoomable_container = top.append('svg:g');
         this.zoomable_container = zoomable_container;
+        
+
+        var zoom = d3.behavior.zoom()
+                    .scaleExtent([0.1, 2])
+                    .on('zoom', redraw);
+
+        this.zoom = zoom;
+
+        console.log( zoom.center() );
+        bg.call(zoom);
+
+        function redraw() {
+          var e = <d3.ZoomEvent>d3.event;
+
+          zoomable_container
+            .attr('transform', 
+                'translate(' + e.translate + ')' +
+                ' scale(' + e.scale + ')');
+        }
 
         // 保证node层不会被连接线挡住
-<<<<<<< HEAD
         var connector_container = this.connector_container = zoomable_container.append('g');
         var node_container = this.node_container = zoomable_container.append('g');
-=======
-        var connector_container = this.connector_container = parent.append('g');
-        var node_container = this.node_container = parent.append('g');
->>>>>>> origin/master
 
         this.node_list.forEach(( node )=>{
             node.create_view( node_container );
@@ -101,8 +125,10 @@ export class NodeEditor{
             }
 
             var enode = node_template.create_enode(node);
+            enode.editor = this;
 
             enode.name = node.name;
+
 
             this.node_list.push( enode );
 

@@ -20,7 +20,7 @@ interface BackgroundOption{
 }
 
 export function add_background( 
-  element:SVGElement|d3.Selection<Object>,
+  element:CommonSVGElement|d3.Selection<Object>,
   parent: d3.Selection<Object>,
   option: BackgroundOption,
   background?:d3.Selection<Object>
@@ -39,7 +39,7 @@ export function add_background(
       height : 0
     });
   }
-  var bbox = element.getBBox();
+  var bbox = (<CommonSVGElement>element).getBBox();
   
   if( !background ){
     background = parent.append('svg:rect')
@@ -65,8 +65,11 @@ export function add_background(
   return background;
 }
 
-export function d3_get( el:d3.Selection<Object>):SVGElement{
-  return <any>el[0][0];
+interface CommonSVGElement extends SVGElement, SVGStylable, SVGTransformable{
+}
+
+export function d3_get( el:d3.Selection<Object>):CommonSVGElement{
+  return <CommonSVGElement>el[0][0];
 }
 
 export function move_group( group:d3.Selection<Object>, pos:Position ){
