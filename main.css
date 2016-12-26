@@ -39,7 +39,8 @@ svg .joint{
 
 svg .connector{
     stroke : black;
-    stroke-width : 2px;
+    stroke-width : 4px;
+    fill : none;
 }
 
 .menu.hide{
@@ -50,7 +51,7 @@ svg .connector{
 }
 
 .menu .menu-item:hover rect{
-    fill: #1B1B1B;
+    fill: #d4d4d4;
 }
 .menu .menu-item:hover text{
     font-weight: 700;

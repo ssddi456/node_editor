@@ -142,7 +142,7 @@ export class Menu extends VisibleElement {
 
         var item_bg = item_container.append('rect');
         item_bg.attr({
-          fill : '#262626',
+          fill : 'white',
           width : 300,
           height : 20,
         });

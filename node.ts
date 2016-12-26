@@ -230,8 +230,11 @@ export class ENode extends EditorElement implements NodeData{
             this.pos.y = last_move_pos.y;
         });
 
-        
         this.element.main.call(drag_node);
+
+        this.container.on('click', ()=>{
+            this.move_to_top()
+        });
     }
     
 

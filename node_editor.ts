@@ -110,6 +110,7 @@ export class NodeEditor{
             }
         });
 
+
     }
     load_node_template (nodetemplatelist:ENodeTemplateData[]){
         nodetemplatelist.forEach(( node )=>{

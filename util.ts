@@ -95,3 +95,26 @@ export function find_instance( el:d3.Selection<Object>|SVGElement) {
     _el = _el.parentElement;
   }
 }
+
+export function set_by_path( obj, data_path, value ) {
+  let key;
+  data_path = data_path.slice(0, -1);
+  let last_key = data_path[data_path.length-1];
+  while( data_path.length ){
+    key = data_path.shift()
+
+    obj = obj[key];
+  }
+  obj[last_key] = value;
+}
+export function get_by_path( obj, data_path ) {
+  let key;
+  data_path = data_path.slice();
+
+  while( data_path.length ){
+    key = data_path.shift()
+
+    obj = obj[key];
+  }
+  return obj
+}

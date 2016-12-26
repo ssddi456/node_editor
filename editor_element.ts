@@ -50,6 +50,10 @@ export abstract class VisibleElement{
         this.draw();
     }
 
+    move_to_top(){
+        util.d3_get(this.parent).appendChild( util.d3_get(this.container) );
+    }
+
     safe_draw(){
         if( this.is_destroyed ){
             return;
@@ -68,8 +72,6 @@ export abstract class VisibleElement{
 
 export abstract class EditorElement extends VisibleElement implements EditorElementData{
 
-
-
     editor: NodeEditor;
 
     pos : Position = {
@@ -81,4 +83,84 @@ export abstract class EditorElement extends VisibleElement implements EditorElem
       super(instance_id);
     }
 
+}
+
+export class EditableText {
+    
+    parent : d3.Selection<Object>;
+    container : d3.Selection<Object>;
+    text : d3.Selection<Object>;
+    input: d3.Selection<Object>;
+
+    input_el : HTMLInputElement;
+
+    value : string;
+
+    obj : Object;
+    data_path : [string|number];
+
+    constructor( obj, data_path ) {
+        this.obj = obj;
+        this.data_path = data_path;
+        this.value = util.get_by_path(obj, data_path)
+    }
+
+    create_view( parent ){
+        this.parent = parent;
+
+        let container=  this.container = parent.append('g');
+
+        this.text = container.append('text')
+        this.input = container.append('foreignObject')
+
+        util.d3_get(this.input).innerHTML = `
+            <body xmlns="http://www.w3.org/1999/xhtml">
+                <input type="text" />
+            </body>`;
+
+        this.input_el = <HTMLInputElement>(<any>util.d3_get(this.input.select('input')));
+
+        this.bind_event()
+        this.show_text()
+    }
+    bind_event(){
+
+        this.text.on('dblclick', ()=> {
+            this.begin_edit();
+        })
+    }
+    show_text (){
+
+        this.text.attr('visibility', 'visible')
+    }
+    hide_text(){
+
+        this.text.attr('visibility', 'hidden')
+    }
+
+    show_edit (){
+        this.input.attr('visibility', 'visible')
+    }
+
+    hide_edit(){
+        this.input.attr('visibility', 'hidden')
+    }
+
+    begin_edit( ){
+        this.show_edit()
+    }
+
+    end_edit(){
+        let edited_value = this.input_el.value;
+
+        if( this.value != edited_value ) {
+
+            this.value = edited_value;
+            this.text.text(edited_value);
+
+            util.set_by_path(this.obj, this.data_path, edited_value);
+        }
+
+        this.show_text()
+    }
 }
