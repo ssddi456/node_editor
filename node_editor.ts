@@ -60,7 +60,7 @@ export class NodeEditor{
         var bg = top
           .append('svg:rect')
             .attr({
-              fill : '#262626',
+              fill : '#ffffff' //'#262626',
             })
             .attr(canvas_option);
         var zoomable_container = top.append('svg:g');

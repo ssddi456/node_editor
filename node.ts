@@ -90,7 +90,7 @@ export class ENode extends EditorElement implements NodeData{
         var title = main.append('g');
         var title_bg = util.add_background( util.d3_get(title), title, 
                         {
-                            fill : 'url(#title_bg_color)'
+                            // fill : 'url(#title_bg_color)'
                         });
 
         var title_text = title.append('svg:text')
@@ -184,8 +184,8 @@ export class ENode extends EditorElement implements NodeData{
         };
 
         drag_node.on('dragstart', ()=>{
-            var e = <d3.MouseEvent>(<d3.BaseEvent>d3.event).sourceEvent;
-            var target = e.target;
+            var e = <MouseEvent>(<d3.BaseEvent>d3.event).sourceEvent;
+
             var zoom = this.editor.zoom;
             var pos = {
                 x : this.pos.x,
@@ -202,13 +202,8 @@ export class ENode extends EditorElement implements NodeData{
 
             }
 
-            // TODO:这里并不能正确获取相对根的offset，需要修正。
             origin_cursor_point.x = (e.offsetX-current_zoom.translate.x)/current_zoom.scale - pos.x;// apply transform
             origin_cursor_point.y = (e.offsetY-current_zoom.translate.y)/current_zoom.scale - pos.y;// apply transform
-
-
-            console.log( e );
-
         });
         drag_node.on('drag', ()=>{
             var e = <MouseEvent>d3.event;

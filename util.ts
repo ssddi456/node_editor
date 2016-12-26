@@ -43,12 +43,13 @@ export function add_background(
   
   if( !background ){
     background = parent.append('svg:rect')
+                  .classed('background', true)
                   .attr({
                     'rx' : 5,
                     'ry' : 5,
-                    'fill' : option.fill || '#191b18',
-                    'strokeWidth' : option.borderWidth || 2,
-                    'strokeColor' : option.borderColor || 'darkslateblue'
+                    'fill' : option.fill || '#ffffff',//'#191b18',
+                    'stroke-width' : option.borderWidth || 2,
+                    'stroke' : option.borderColor || 'darkslateblue'
                   });
   }
 

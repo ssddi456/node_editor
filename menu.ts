@@ -122,8 +122,6 @@ export class Menu extends VisibleElement {
       return;
     }
 
-    console.log( context );
-
     var menu_container = element.menu_container;
     util.move_group( menu_container, pos);
 

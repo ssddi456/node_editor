@@ -39,9 +39,10 @@ export class Connector extends VisibleElement{
 
     init_view (parent:d3.Selection<Object>){
         var node = parent.append('line')
-                    .attr({
-                        stroke : 'white'
-                    })
+                        .classed('connector', true)
+                        .attr({
+                            // stroke : 'white'
+                        })
         this.element = {
             node
         };

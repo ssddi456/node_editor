@@ -66,9 +66,7 @@ export abstract class Joint extends EditorElement implements JointData{
             var node = container.append('circle')
                         .attr({
                             cx : 15,
-                            r : 5,
-                            fill : 'white',
-                            stroke : '1px soild white' 
+                            r : 5
                         });
         }
 
@@ -83,11 +81,11 @@ export abstract class Joint extends EditorElement implements JointData{
             var node = container.append('circle')
                         .attr({
                             cx : option.width - 30,
-                            r : 5,
-                            fill : 'white',
-                            stroke : '1px soild white' 
+                            r : 5
                         });
         }
+
+        node.classed('joint', true);
 
         this.element = {
             container,

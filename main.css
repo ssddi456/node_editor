@@ -25,13 +25,21 @@ html, body{
 .main-view{
     border-right: 1px solid darkslateblue;
     padding: 0px;
-    background-color: #262626;
 }
 #main-view{
 }
 
 svg text {
-    fill : white;
+    /*fill : white;*/
+}
+
+svg .joint{
+    fill : '#7B7B7B';
+}
+
+svg .connector{
+    stroke : black;
+    stroke-width : 2px;
 }
 
 .menu.hide{
