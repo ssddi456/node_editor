@@ -292,11 +292,11 @@ export class NodeEditor{
             node_template_list : Object.keys(NodeTypes).map( k => NodeTypes[k].toJSON() ),
 
             node_list : this.node_list
-                          .filter(node => node.is_destroyed )
+                          .filter(node => !node.is_destroyed )
                           .map( node => node.toJSON() ),
 
             connecter_list : this.connector_list
-                                 .filter(node => node.is_destroyed )
+                                 .filter(node => !node.is_destroyed )
                                  .map( node => node.toJSON() ),
             menu : this.menu.toJSON()
         };

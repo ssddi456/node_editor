@@ -12,11 +12,13 @@ var template_list_vm = {
 };
 
 var toolbar_vm = {
-
+  save_data : function() {
+      var data = JSON.stringify(editor_vm.main_app);
+      localStorage.setItem('node_editor', data);
+  }
 };
 
-var editor_vm = {
-  main_app  : new NodeEditor({
+var default_data = {
     node_list : [
       {
         class_id : "",
@@ -70,7 +72,17 @@ var editor_vm = {
       output_id : '2'
     }],
     menu : {}
-  })
+  };
+
+var stored_data = localStorage.getItem("node_editor");
+try {
+  var parsed_data = JSON.parse(stored_data);
+} catch(e){
+
+}
+
+var editor_vm = {
+  main_app  : new NodeEditor(parsed_data || default_data)
 };
 
 
@@ -113,7 +125,7 @@ var top = svg.append('svg:g');
 export let init = () => {
   ko.applyBindings(toolbar_vm, document.getElementById('tool-bar'));
   ko.applyBindings(editor_vm, document.getElementById('main-view'));
-  ko.applyBindings(template_list_vm, document.getElementById('node-template'));
+  // ko.applyBindings(template_list_vm, document.getElementById('node-template'));
 
   editor_vm.main_app.create_view(top, canvas_option);
 
