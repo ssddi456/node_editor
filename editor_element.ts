@@ -17,6 +17,8 @@ export abstract class VisibleElement{
     parent: d3.Selection<Object>;
     container: d3.Selection<Object>;
 
+    editor: NodeEditor;
+
     is_destroyed:boolean = false;
     ui_inited:boolean = false;
 
@@ -47,7 +49,7 @@ export abstract class VisibleElement{
         this.ui_inited = true;
 
         this.bind_event();
-        this.draw();
+        this.safe_draw();
     }
 
     move_to_top(){
@@ -72,7 +74,6 @@ export abstract class VisibleElement{
 
 export abstract class EditorElement extends VisibleElement implements EditorElementData{
 
-    editor: NodeEditor;
 
     pos : Position = {
         x : 0,
@@ -85,13 +86,10 @@ export abstract class EditorElement extends VisibleElement implements EditorElem
 
 }
 
-export class EditableText {
+export class EditableText extends VisibleElement {
     
-    parent : d3.Selection<Object>;
-    container : d3.Selection<Object>;
     text : d3.Selection<Object>;
     input: d3.Selection<Object>;
-
     input_el : HTMLInputElement;
 
     value : string;
@@ -99,35 +97,67 @@ export class EditableText {
     obj : Object;
     data_path : [string|number];
 
+    editing: boolean;
+
     constructor( obj, data_path ) {
+        super();
+
         this.obj = obj;
         this.data_path = data_path;
         this.value = util.get_by_path(obj, data_path)
     }
 
-    create_view( parent ){
+    init_view( parent, option? ){
         this.parent = parent;
 
         let container=  this.container = parent.append('g');
 
         this.text = container.append('text')
         this.input = container.append('foreignObject')
-
+        this.input.attr({
+            x : 0,
+            y : -20
+        });
         util.d3_get(this.input).innerHTML = `
             <body xmlns="http://www.w3.org/1999/xhtml">
-                <input type="text" />
-            </body>`;
+                <div>
+                    <input type="text"/>
+                </div>
+            </body>
+        `;
 
         this.input_el = <HTMLInputElement>(<any>util.d3_get(this.input.select('input')));
-
-        this.bind_event()
-        this.show_text()
+        this.set_text(this.value);
     }
-    bind_event(){
 
-        this.text.on('dblclick', ()=> {
+    set_text ( str:string){
+        this.text.text(this.value);
+        this.input_el.value = this.value;
+    }
+
+    bind_event(){
+        this.show_text();
+        this.hide_edit();
+
+        util.d3_get(this.text).addEventListener('click', (e)=>{
+            e.stopPropagation();
+        }, true);
+
+        util.d3_get(this.text).addEventListener('dblclick', ()=> {
             this.begin_edit();
-        })
+        });
+
+        this.input_el.addEventListener('click', (e)=>{
+            e.stopPropagation();
+        }, true);
+
+        this.input_el.addEventListener('contextmenu', (e)=>{
+            e.stopPropagation();
+        }, true);
+
+        this.editor.container.on('click.end_edit_'+ this.instance_id , ()=>{
+            this.end_edit();
+        });
     }
     show_text (){
 
@@ -139,7 +169,12 @@ export class EditableText {
     }
 
     show_edit (){
-        this.input.attr('visibility', 'visible')
+        this.input.attr({
+            'visibility': 'visible',
+            x : 0,
+            y : -20
+        });
+
     }
 
     hide_edit(){
@@ -147,10 +182,23 @@ export class EditableText {
     }
 
     begin_edit( ){
-        this.show_edit()
+
+        if( this.editing ){
+            return;
+        }
+
+        this.editing = true;
+        this.show_edit();
+        this.hide_text();
     }
 
     end_edit(){
+        // should optimize this hook
+
+        if( !this.editing ){
+            return;
+        }
+        this.editing = false;
         let edited_value = this.input_el.value;
 
         if( this.value != edited_value ) {
@@ -160,7 +208,13 @@ export class EditableText {
 
             util.set_by_path(this.obj, this.data_path, edited_value);
         }
+        this.hide_edit();
+        this.show_text();
+    }
+    destroy(){
 
-        this.show_text()
+    }
+    draw(){
+
     }
 }

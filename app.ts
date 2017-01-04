@@ -1,15 +1,8 @@
-import {ENode,ENodeTemplate,NodeData, ENodeTemplateData} from './node';
-import {Joint,JointType,InputJoint,OutputJoint} from './joint';
-import {Connector,ConnectorData} from './connector';
-import {Position} from './editor_element';
-import {NodeEditor,NodeEditorData} from './node_editor';
+import {NodeEditor} from './node_editor';
 import * as ko from "knockout";
 import * as d3 from "d3";
 
-
-var template_list_vm = {
-
-};
+var template_list_vm = {};
 
 var toolbar_vm = {
   save_data : function() {
@@ -32,13 +25,13 @@ var default_data = {
         input_joints : [{
           type : 'input',
           instance_id : '1',
-          jointdata : { some : 'data'},
+          jointdata : { name : 'data'},
           pos:{ x:0, y:0}
         }],
         output_joints : [{
           type : 'output',
           instance_id : '2',
-          jointdata : { some : 'data'},
+          jointdata : { name : 'data'},
           pos:{ x:0, y:0}
         }],
       },
@@ -54,13 +47,13 @@ var default_data = {
         input_joints : [{
           type : 'input',
           instance_id : '3',
-          jointdata : { some : 'data'},
+          jointdata : { name : 'data'},
           pos:{ x:0, y:0}
         }],
         output_joints : [{
           type : 'output',
           instance_id : '4',
-          jointdata : { some : 'data'},
+          jointdata : { name : 'data'},
           pos:{ x:0, y:0}
         }],
       }

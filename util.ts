@@ -98,8 +98,9 @@ export function find_instance( el:d3.Selection<Object>|SVGElement) {
 
 export function set_by_path( obj, data_path, value ) {
   let key;
-  data_path = data_path.slice(0, -1);
   let last_key = data_path[data_path.length-1];
+  data_path = data_path.slice(0, -1);
+
   while( data_path.length ){
     key = data_path.shift()
 
@@ -107,6 +108,7 @@ export function set_by_path( obj, data_path, value ) {
   }
   obj[last_key] = value;
 }
+
 export function get_by_path( obj, data_path ) {
   let key;
   data_path = data_path.slice();

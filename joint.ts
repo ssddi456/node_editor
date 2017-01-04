@@ -1,7 +1,7 @@
 import {ENode} from './node';
 import {NodeEditor} from './node_editor';
 import {Connector} from './connector';
-import {EditorElementData, EditorElement} from './editor_element';
+import {EditorElementData, EditorElement, EditableText} from './editor_element';
 import * as util from './util';
 import * as d3 from 'd3';
 
@@ -18,7 +18,7 @@ export interface JointData extends EditorElementData{
 
 export interface JointView{
     node : d3.Selection<Object>;
-    text : d3.Selection<Object>;
+    text : EditableText,
     container : d3.Selection<Object>; 
 }
 
@@ -70,12 +70,12 @@ export abstract class Joint extends EditorElement implements JointData{
                         });
         }
 
-        var text = container.append('text')
-                    .attr({
-                        x : 25,
-                        y : 5,
-                    })
-                    .append('tspan')
+        var text = container.append('g')
+                    .attr('transform', 'translate(25,5)');
+
+        var title_text = new EditableText(this.jointdata, ['name']);
+        title_text.editor = this.editor;
+        title_text.create_view(text);
 
         if ( this instanceof OutputJoint ){
             var node = container.append('circle')
@@ -90,7 +90,7 @@ export abstract class Joint extends EditorElement implements JointData{
         this.element = {
             container,
             node,
-            text
+            text:title_text
         };
 
         this.update_node_center(option);
@@ -168,7 +168,6 @@ export class OutputJoint extends Joint{
                 opacity : this.connectors.length > 0 ? 1 : 0.4
             });
 
-        element.text.text( JSON.stringify(this.jointdata) + '#' + this.instance_id);
     }
 
     destroy (){
@@ -218,7 +217,6 @@ export class InputJoint extends Joint{
                 opacity : this.connector ? 1: 0.4
             });
 
-        element.text.text( JSON.stringify(this.jointdata) + '#' + this.instance_id ) ;
     }
 
     destroy (){

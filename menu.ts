@@ -1,5 +1,4 @@
 import {VisibleElement,Position, ElementMap } from './editor_element'
-import {NodeEditor } from './node_editor'
 import * as util from './util';
 import {ENode,ENodeTemplate,ENodeTemplateData, NodeTypes} from './node';
 import {Connector} from './connector';
@@ -26,7 +25,6 @@ export class MenuItem  {
 
 export class Menu extends VisibleElement {
 
-  editor : NodeEditor;
   element : MenuView;
   container : d3.Selection<Object>;
 

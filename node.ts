@@ -1,5 +1,5 @@
 import {Joint,OutputJoint, InputJoint, JointData,JointViewParam} from './joint';
-import {Position, EditorElement, EditorElementData} from './editor_element';
+import {Position, EditableText, EditorElement, EditorElementData} from './editor_element';
 import * as util from './util';
 import * as d3 from 'd3';
 
@@ -18,17 +18,17 @@ interface NodeConstructor extends Function{
 }
 
 export interface ENodeView {
-    main:d3.Selection<Object>;
+    main: d3.Selection<Object>;
 
-    title:d3.Selection<Object>;
-    title_bg:d3.Selection<Object>;
-    title_text:d3.Selection<Object>;
+    title: d3.Selection<Object>;
+    title_bg: d3.Selection<Object>;
+    title_text: EditableText;
 
-    body:d3.Selection<Object>;
-    body_bg:d3.Selection<Object>;
+    body: d3.Selection<Object>;
+    body_bg: d3.Selection<Object>;
 
-    input_joints:d3.Selection<Object>;
-    output_joints:d3.Selection<Object>;
+    input_joints: d3.Selection<Object>;
+    output_joints: d3.Selection<Object>;
 }
 
 interface ENodeViewParameter{
@@ -93,15 +93,9 @@ export class ENode extends EditorElement implements NodeData{
                             // fill : 'url(#title_bg_color)'
                         });
 
-        var title_text = title.append('svg:text')
-                            .attr({
-                                'font-size' : "14px",
-                                'font-weight' : 'bolder',
-                                x : 0,
-                                y : 0
-                            })
-                            .append('tspan')
-
+        var title_text = new EditableText(this, ['name']);
+        title_text.editor = this.editor;
+        title_text.init_view(title);
 
         var body = main.append('g')
                     .attr({
@@ -158,6 +152,15 @@ export class ENode extends EditorElement implements NodeData{
     }
 
     bind_event (){
+
+
+        this.container.on('click', ()=>{
+            this.move_to_top()
+        });
+
+        this.element.title_text.bind_event();
+
+
         var drag_node = d3.behavior.drag();
 
         var origin_cursor_point:Position = {
@@ -231,10 +234,6 @@ export class ENode extends EditorElement implements NodeData{
         });
 
         this.element.main.call(drag_node);
-
-        this.container.on('click', ()=>{
-            this.move_to_top()
-        });
     }
     
 
@@ -246,7 +245,7 @@ export class ENode extends EditorElement implements NodeData{
            'transform' : 'translate(' + this.pos.x  + ',' + this.pos.y + ')'
         });
 
-        element.title_text.text( this.name + '#' + this.instance_id );
+        // element.title_text.text( this.name + '#' + this.instance_id );
 
         util.add_background( util.d3_get(element.title), element.title, {
             width : ep.body_width,
@@ -286,7 +285,7 @@ export class ENode extends EditorElement implements NodeData{
                 y : this.pos.y 
             },
             output_joints : this.output_joints.map(clone_joint),
-            input_joints : this.output_joints.map(clone_joint),
+            input_joints : this.input_joints.map(clone_joint),
         }
     }
     toJSONClone():NodeData{
@@ -306,7 +305,7 @@ export class ENode extends EditorElement implements NodeData{
                 y : this.pos.y 
             },
             output_joints : this.output_joints.map(clone_joint),
-            input_joints : this.output_joints.map(clone_joint),
+            input_joints : this.input_joints.map(clone_joint),
         }
     }
 

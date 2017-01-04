@@ -1,7 +1,7 @@
-import {ENode,ENodeTemplate,NodeData,NodeTypes, ENodeTemplateData} from './node';
-import {Joint,JointType,InputJoint,OutputJoint,JointData} from './joint';
-import {Connector,ConnectorData} from './connector';
-import {Position} from './editor_element';
+import {ENode, ENodeTemplate, NodeData, NodeTypes, ENodeTemplateData} from './node';
+import {Joint, JointType, InputJoint, OutputJoint, JointData} from './joint';
+import {Connector, ConnectorData} from './connector';
+import {Position, VisibleElement} from './editor_element';
 import {Menu, MenuData} from './menu';
 import * as util from './util';
 
@@ -73,7 +73,6 @@ export class NodeEditor{
 
         this.zoom = zoom;
 
-        console.log( zoom.center() );
         bg.call(zoom);
 
         function redraw() {
@@ -151,6 +150,8 @@ export class NodeEditor{
             var connector = new Connector( 
                                     <InputJoint>this.joint_map[node.input_id], 
                                     <OutputJoint>this.joint_map[node.output_id]);
+
+            connector.editor = this;
 
             this.connector_list.push(connector);
         });
@@ -237,7 +238,7 @@ export class NodeEditor{
         };
 
         this.end_add_connector = (endjoint?:Joint)=>{
-            console.log("end_add_connector", endjoint);
+
             this.end_add_connector = undefined;
             this.container.on('mousemove.add_connector', null);
 
