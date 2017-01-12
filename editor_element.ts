@@ -145,7 +145,7 @@ export class EditableText extends VisibleElement {
 
         util.d3_get(this.text).addEventListener('dblclick', ()=> {
             this.begin_edit();
-        });
+        }, true);
 
         this.input_el.addEventListener('click', (e)=>{
             e.stopPropagation();
