@@ -19,17 +19,20 @@ interface BackgroundOption{
   borderColor? : string, 
 }
 
+
+export interface backgroundObject extends d3.Selection<SVGGraphicsElement>{
+  redraw : (a?:{})=>void
+}
+
 export function add_background( 
-  element:CommonSVGElement|d3.Selection<Object>,
-  parent: d3.Selection<Object>,
+  parent: d3.Selection<any>,
   option: BackgroundOption,
   background?:d3.Selection<Object>
-): d3.Selection<Object>{
+): backgroundObject{
 
-  if( 'getBBox' in element ){
-  } else {
-    element = d3_get(<d3.Selection<Object>>element);
-  }
+  
+  var  element = d3_get(parent);
+  
 
   if( background ){
     background.attr({
@@ -39,8 +42,15 @@ export function add_background(
       height : 0
     });
   }
-  var bbox = (<CommonSVGElement>element).getBBox();
-  
+  var bbox = (<SVGGraphicsElement>element).getBBox();
+
+  var padding = 'padding' in option ? option.padding : 5;
+
+  option.padding = padding;
+  option.fill = option.fill || '#ffffff';
+  option.borderWidth = 'borderWidth' in option ? option.borderWidth : 2;
+  option.borderColor = option.borderColor || 'darkslateblue';
+
   if( !background ){
     background = parent.append('svg:rect')
                   .classed('background', true)
@@ -53,24 +63,32 @@ export function add_background(
                   });
   }
 
-  var padding = option.padding || 5;
-
   background
         .attr({
-          'width' : (option.width || bbox.width) + 2 * padding,
-          'height' : (option.height || bbox.height) + 2 * padding,
+          'width' : ('width' in option ? option.width : bbox.width) + 2 * padding,
+          'height' : ('height' in option ? option.height : bbox.height) + 2 * padding,
           'x'  : bbox.x - padding,
           'y'  : bbox.y - padding,
         })
+  
+  var ret:backgroundObject = <backgroundObject>background;
+  ret.option = option;
+  ret.redraw = function( new_option={}){
+    for( var k in new_option ){
+      if( new_option.hasOwnProperty(k) ){
+        option[k] = new_option[k]
+      }
+    }
 
-  return background;
+    add_background( parent, option, background);
+  }
+
+  return ret;
 }
 
-interface CommonSVGElement extends SVGElement, SVGStylable, SVGTransformable{
-}
 
-export function d3_get( el:d3.Selection<Object>):CommonSVGElement{
-  return <CommonSVGElement>el[0][0];
+export function d3_get( el:d3.Selection<any>):SVGGraphicsElement{
+  return <SVGGraphicsElement>el[0][0];
 }
 
 export function move_group( group:d3.Selection<Object>, pos:Position ){

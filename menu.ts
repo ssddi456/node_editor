@@ -2,6 +2,7 @@ import {VisibleElement,Position, ElementMap } from './editor_element'
 import * as util from './util';
 import {ENode,ENodeTemplate,ENodeTemplateData, NodeTypes} from './node';
 import {Connector} from './connector';
+import { backgroundObject } from "./util";
 
 export interface MenuData{
 
@@ -9,7 +10,7 @@ export interface MenuData{
 
 export interface MenuView {
   menu_container : d3.Selection<Object>;
-  menu_bg : d3.Selection<Object>;
+  menu_bg : backgroundObject;
 }
 
 export class MenuItem  {
@@ -80,7 +81,7 @@ export class Menu extends VisibleElement {
     menu_container.classed('menu hide', true);
 
     this.element.menu_container = menu_container;
-    this.element.menu_bg = util.add_background(menu_container, menu_container, {});
+    this.element.menu_bg = util.add_background(menu_container, {});
   }
 
   bind_event(){
@@ -159,7 +160,7 @@ export class Menu extends VisibleElement {
 
       });
     
-    util.add_background(menu_container, menu_container, {}, this.element.menu_bg);
+    this.element.menu_bg.redraw();
 
     this.show();
   }

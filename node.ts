@@ -2,6 +2,7 @@ import {Joint,OutputJoint, InputJoint, JointData,JointViewParam} from './joint';
 import {Position, EditableText, EditorElement, EditorElementData} from './editor_element';
 import * as util from './util';
 import * as d3 from 'd3';
+import { backgroundObject } from "./util";
 
 export interface NodeData  extends EditorElementData{
     class_id : string;
@@ -21,11 +22,11 @@ export interface ENodeView {
     main: d3.Selection<Object>;
 
     title: d3.Selection<Object>;
-    title_bg: d3.Selection<Object>;
+    title_bg: backgroundObject;
     title_text: EditableText;
 
     body: d3.Selection<Object>;
-    body_bg: d3.Selection<Object>;
+    body_bg: backgroundObject;
 
     input_joints: d3.Selection<Object>;
     output_joints: d3.Selection<Object>;
@@ -82,19 +83,18 @@ export class ENode extends EditorElement implements NodeData{
 
     init_view ( main:d3.Selection<Object> ){
 
-        var body_bg = util.add_background( util.d3_get(main), main, {});
+        var body_bg = util.add_background( main, {
+            padding : 0
+        });
+
         body_bg.attr({
             opacity : 0.6
         });
 
         var title = main.append('g');
-        var title_bg = util.add_background( util.d3_get(title), title, 
-                        {
-                            // fill : 'url(#title_bg_color)'
-                        });
+        var title_bg = util.add_background( title, {});
 
         var title_text = new EditableText(this, ['name']);
-        title_text.editor = this.editor;
         title_text.init_view(title);
 
         var body = main.append('g')
@@ -238,6 +238,8 @@ export class ENode extends EditorElement implements NodeData{
     
 
     draw(){
+        console.log('call node.draw');
+
         var element = this.element;
         var ep = this.element_parameter;
 
@@ -247,14 +249,14 @@ export class ENode extends EditorElement implements NodeData{
 
         // element.title_text.text( this.name + '#' + this.instance_id );
 
-        util.add_background( util.d3_get(element.title), element.title, {
+        element.title_bg.redraw({
             width : ep.body_width,
-        }, element.title_bg);
+        });
 
-        util.add_background( util.d3_get(element.main), element.main, {
-            width : ep.body_width,
+        element.body_bg.redraw({
+            width : ep.body_width + 10,
             height : ep.body_height + ep.title_height
-        }, element.body_bg);
+        });
 
 
         this.input_joints.forEach(( joint ) =>{ joint.draw() });

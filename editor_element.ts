@@ -103,6 +103,7 @@ export class EditableText extends VisibleElement {
         super();
 
         this.obj = obj;
+        this.editor = obj.editor;
         this.data_path = data_path;
         this.value = util.get_by_path(obj, data_path)
     }
@@ -113,11 +114,13 @@ export class EditableText extends VisibleElement {
         let container=  this.container = parent.append('g');
 
         this.text = container.append('text')
+
         this.input = container.append('foreignObject')
         this.input.attr({
             x : 0,
             y : -20
         });
+
         util.d3_get(this.input).innerHTML = `
             <body xmlns="http://www.w3.org/1999/xhtml">
                 <div>
@@ -139,13 +142,20 @@ export class EditableText extends VisibleElement {
         this.show_text();
         this.hide_edit();
 
-        util.d3_get(this.text).addEventListener('click', (e)=>{
+        util.d3_get(this.text).addEventListener('mousedown', (e)=>{
             e.stopPropagation();
         }, true);
 
         util.d3_get(this.text).addEventListener('dblclick', ()=> {
             this.begin_edit();
         }, true);
+
+
+
+        this.input_el.addEventListener('mousedown', (e)=>{
+            e.stopPropagation();
+        }, true);
+
 
         this.input_el.addEventListener('click', (e)=>{
             e.stopPropagation();
