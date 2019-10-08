@@ -1,6 +1,8 @@
 html, body{
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
 #tool-bar {
@@ -27,6 +29,8 @@ html, body{
     padding: 0px;
 }
 #main-view{
+    overflow: hidden;
+    height: 100%;
 }
 
 svg text {

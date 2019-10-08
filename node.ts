@@ -254,7 +254,6 @@ export class ENode extends EditorElement implements NodeData{
         });
 
         element.body_bg.redraw({
-            width : ep.body_width + 10,
             height : ep.body_height + ep.title_height
         });
 
