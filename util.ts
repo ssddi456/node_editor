@@ -72,7 +72,7 @@ export function add_background(
         })
   
   var ret:backgroundObject = <backgroundObject>background;
-  ret.option = option;
+
   ret.redraw = function( new_option={}){
     for( var k in new_option ){
       if( new_option.hasOwnProperty(k) ){

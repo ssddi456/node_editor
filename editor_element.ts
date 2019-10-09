@@ -46,6 +46,7 @@ export abstract class VisibleElement {
         }
 
         this.init_view(container, option);
+        // should add a view assert
         this.ui_inited = true;
 
         this.bind_event();

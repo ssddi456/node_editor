@@ -14,9 +14,6 @@ export interface NodeData extends EditorElementData {
     input_joints: JointData[];
 }
 
-interface NodeConstructor extends Function {
-
-}
 
 export interface ENodeView {
     main: d3.Selection<Object>;
@@ -340,8 +337,7 @@ export class ENodeTemplate implements ENodeTemplateData {
     output_joints: JointData[];
     input_joints: JointData[];
 
-    constructor(initdata?: ENodeTemplateData) {
-        initdata = initdata || <ENodeTemplateData>{};
+    constructor(initdata: Partial<ENodeTemplateData> = {}) {
 
         this.class_id = initdata.class_id || util.uuid();
         this.default_name = initdata.default_name || '未命名';
@@ -389,3 +385,6 @@ interface NodeTypeSet {
 }
 
 export var NodeTypes: NodeTypeSet = {}
+export const defaultNodeClassId = 'default_node_classId';
+export const buildInNodeCLassId: string[] = [defaultNodeClassId];
+new ENodeTemplate({ class_id: defaultNodeClassId });
