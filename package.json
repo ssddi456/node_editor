@@ -5,8 +5,7 @@
   "main": "setup.js",
   "scripts": {
     "build": "tsc -w -p . --module amd --sourceMap",
-    "live": "live-server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node ./tools/start.js"
   },
   "repository": {
     "type": "git",
