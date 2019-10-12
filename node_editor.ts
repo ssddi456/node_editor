@@ -1,4 +1,5 @@
-import { ENode, ENodeTemplate, NodeData, NodeTypes, ENodeTemplateData, defaultNodeClassId, buildInNodeCLassId } from './node';
+import { ENode, ENodeTemplate, NodeData, ENodeTemplateData } from './node';
+import { NodeTypes, defaultNodeClassId, buildInNodeCLassId } from "./node_types";
 import { Joint, JointType, InputJoint, OutputJoint, JointData } from './joint';
 import { Connector, ConnectorData } from './connector';
 import { Position } from './editor_element';
@@ -125,11 +126,8 @@ export class NodeEditor {
                 node_template = NodeTypes[defaultNodeClassId]
             }
 
-            var enode = node_template.create_enode(node);
-            enode.editor = this;
-
+            var enode = node_template.create_enode(node, this);
             enode.name = node.name;
-
 
             this.node_list.push(enode);
 
@@ -164,7 +162,7 @@ export class NodeEditor {
     }
 
     add_node(template: ENodeTemplate, pos: Position) {
-        var enode = template.create_enode(<NodeData>{ pos: pos });
+        var enode = template.create_enode(<NodeData>{ pos: pos }, this);
 
         enode.create_view(this.node_container);
 
@@ -187,9 +185,7 @@ export class NodeEditor {
     }
 
     refresh_connector() {
-        if (this.connector_list.some(connector => connector.is_destroyed)) {
-            this.connector_list = this.connector_list.filter(connector => connector.is_destroyed);
-        }
+        this.connector_list = this.connector_list.filter(connector => !connector.is_destroyed);
     }
 
     start_add_connector(startjoint: Joint) {
@@ -210,15 +206,17 @@ export class NodeEditor {
             }
         };
 
-        if (startjoint instanceof InputJoint) {
-            fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data);
-            temp_connector = new Connector(startjoint, fake_joint);
-        } else if (startjoint instanceof OutputJoint) {
-            fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data);
-            temp_connector = new Connector(fake_joint, startjoint);
+        if (startjoint instanceof Joint && startjoint.type == JointType.INPUT) {
+            fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data, this);
+            temp_connector = new Connector(startjoint as InputJoint, fake_joint);
+        } else if (startjoint instanceof Joint && startjoint.type == JointType.OUTPUT) {
+            fake_joint = new OutputJoint(fake_joint_data.instance_id, fake_joint_data, this);
+            temp_connector = new Connector(fake_joint, startjoint as OutputJoint);
         }
 
         temp_connector.create_view(this.connector_container);
+        temp_connector.draw();
+
         var mouse_move_handle = () => {
             var e = <MouseEvent>d3.event;
             var pos = d3.mouse(util.d3_get(this.zoomable_container));
@@ -254,7 +252,7 @@ export class NodeEditor {
             if (!can_add_connector(params[0], params[1])) {
                 return;
             }
-            if (params[0] instanceof InputJoint) {
+            if (params[0].type == JointType.INPUT) {
 
             } else {
                 params.reverse();

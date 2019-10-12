@@ -1,4 +1,5 @@
-import { Joint, OutputJoint, InputJoint, JointData, JointViewParam } from './joint';
+import { Joint, OutputJoint, InputJoint, JointData, JointViewParam, JointConfigData } from './joint';
+import { NodeEditor } from "./node_editor";
 import { Position, EditableText, EditorElement, EditorElementData } from './editor_element';
 import * as util from './util';
 import * as d3 from 'd3';
@@ -10,8 +11,8 @@ export interface NodeData extends EditorElementData {
     name: string;
     data: Object;
 
-    output_joints: JointData[];
-    input_joints: JointData[];
+    output_joints: Array<JointData | JointConfigData>;
+    input_joints: Array<JointData | JointConfigData>;
 }
 
 
@@ -20,7 +21,7 @@ export interface ENodeView {
 
     title: d3.Selection<Object>;
     title_bg: backgroundObject;
-    title_text: EditableText;
+    title_text: EditableText<NodeData>;
 
     body: d3.Selection<Object>;
     body_bg: backgroundObject;
@@ -29,7 +30,7 @@ export interface ENodeView {
     output_joints: d3.Selection<Object>;
 }
 
-interface ENodeViewParameter {
+export interface ENodeViewParameter {
     title_height: number;
     body_width: number;
     body_height: number;
@@ -39,7 +40,6 @@ interface ENodeViewParameter {
 
 export class ENode extends EditorElement implements NodeData {
     instance_id: string;
-    class_id: string;
     name: string;
     data: Object;
 
@@ -57,29 +57,33 @@ export class ENode extends EditorElement implements NodeData {
     output_joints: OutputJoint[];
     input_joints: InputJoint[];
 
-    constructor(class_id: string, instance_id: string, initdata: NodeData) {
+    constructor(public class_id: string, instance_id: string, initdata: NodeData, public editor: NodeEditor) {
         super(instance_id);
-
-        this.class_id = class_id;
-
 
         this.name = initdata.name;
         this.data = initdata.data;
 
-        this.output_joints = initdata.output_joints.map((node: JointData) => {
-            var joint = new OutputJoint(node.instance_id || util.uuid(), node);
-            joint.node = this;
-            return joint;
-        });
-
-        this.input_joints = initdata.input_joints.map((node: JointData) => {
-            var joint = new InputJoint(node.instance_id || util.uuid(), node);
-            joint.node = this;
-            return joint;
-        });
+        this.init_joints(initdata);
 
         this.pos.x = initdata.pos.x;
         this.pos.y = initdata.pos.y;
+
+        // 可能下面应该有个asserts
+    }
+
+    init_joints(initdata: NodeData,) {
+
+        this.output_joints = initdata.output_joints.map((node: JointData | JointConfigData) => {
+            var joint = new OutputJoint((node as JointData).instance_id || util.uuid(), node, this.editor);
+            joint.node = this;
+            return joint;
+        });
+
+        this.input_joints = initdata.input_joints.map((node: JointData | JointConfigData) => {
+            var joint = new InputJoint((node as JointData).instance_id || util.uuid(), node, this.editor);
+            joint.node = this;
+            return joint;
+        });
     }
 
     init_view(main: d3.Selection<Object>) {
@@ -95,7 +99,7 @@ export class ENode extends EditorElement implements NodeData {
         var title = main.append('g');
         var title_bg = util.add_background(title, {});
 
-        var title_text = new EditableText(this, ['name']);
+        var title_text = new EditableText(this, ['name'], this.editor);
         title_text.init_view(title);
 
         var body = main.append('g')
@@ -116,7 +120,8 @@ export class ENode extends EditorElement implements NodeData {
 
         var joint_param = <JointViewParam>{
             width: this.element_parameter.body_width,
-            left: this.pos.x
+            left: this.pos.x,
+            top: this.pos.y
         };
 
         var init_join = (joint_container: d3.Selection<SVGGElement>, offset = 0) => {
@@ -179,11 +184,6 @@ export class ENode extends EditorElement implements NodeData {
             y: 0
         };
 
-        var joint_updater: JointViewParam = {
-            left: 0,
-            top: 0,
-            width: this.element_parameter.body_width
-        };
 
         var current_zoom = {
             translate: {
@@ -192,7 +192,10 @@ export class ENode extends EditorElement implements NodeData {
             },
             scale: 1
         };
-
+        var drag_data = {
+            left: 0,
+            top: 0
+        };
         drag_node.on('dragstart', () => {
             var e = <MouseEvent>(<d3.BaseEvent>d3.event).sourceEvent;
 
@@ -208,12 +211,13 @@ export class ENode extends EditorElement implements NodeData {
                 current_zoom.translate.x = translate[0];
                 current_zoom.translate.y = translate[1];
                 current_zoom.scale = scale
-
-
             }
 
             origin_cursor_point.x = (e.offsetX - current_zoom.translate.x) / current_zoom.scale - pos.x;// apply transform
             origin_cursor_point.y = (e.offsetY - current_zoom.translate.y) / current_zoom.scale - pos.y;// apply transform
+
+            this.input_joints.forEach(x => x.start_drag());
+            this.output_joints.forEach(x => x.start_drag());
         });
         drag_node.on('drag', () => {
             var e = <MouseEvent>d3.event;
@@ -221,23 +225,22 @@ export class ENode extends EditorElement implements NodeData {
                 x: e.x - origin_cursor_point.x,
                 y: e.y - origin_cursor_point.y
             };
-
-            joint_updater.left = last_move_pos.x;
-            joint_updater.top = last_move_pos.y + this.element_parameter.title_height + this.element_parameter.joint_padding_top;
+            drag_data = {
+                left: last_move_pos.x - this.pos.x,
+                top: last_move_pos.y - this.pos.y,
+            };
 
             util.move_group(this.element.main, last_move_pos);
 
-            var drag_joint = (joint: Joint, idx: number) => {
-                joint.on_drag(joint_updater);
-                joint_updater.top += this.element_parameter.joint_height;
-            };
-
-            this.input_joints.forEach(drag_joint);
-            this.output_joints.forEach(drag_joint);
+            this.input_joints.forEach(x => x.on_drag(drag_data));
+            this.output_joints.forEach(x => x.on_drag(drag_data));
         });
         drag_node.on('dragend', () => {
             this.pos.x = last_move_pos.x;
             this.pos.y = last_move_pos.y;
+
+            this.input_joints.forEach(x => x.end_drag(drag_data));
+            this.output_joints.forEach(x => x.end_drag(drag_data));
         });
 
         this.element.main.call(drag_node);
@@ -324,35 +327,48 @@ export interface ENodeTemplateData {
     default_name: string;
     data: Object;
 
-    output_joints: JointData[];
-    input_joints: JointData[];
+    output_joints: JointConfigData[];
+    input_joints: JointConfigData[];
 }
 
-export class ENodeTemplate implements ENodeTemplateData {
+export abstract class NodeTemplate implements ENodeTemplateData{
+    class_id: string;    
+    default_name: string;
+    data: Object;
+    output_joints: JointConfigData[];
+    input_joints: JointConfigData[];
+
+    constructor(initdata: Partial<ENodeTemplateData> = {}) {}
+
+    abstract create_enode(initdata: NodeData, editor: NodeEditor): ENode;
+    abstract toJSON(): ENodeTemplateData;
+}
+
+export class ENodeTemplate extends NodeTemplate implements ENodeTemplateData {
 
     class_id: string;
     default_name: string;
     data: Object;
 
-    output_joints: JointData[];
-    input_joints: JointData[];
+    output_joints: JointConfigData[];
+    input_joints: JointConfigData[];
 
     constructor(initdata: Partial<ENodeTemplateData> = {}) {
+        super();
 
         this.class_id = initdata.class_id || util.uuid();
-        this.default_name = initdata.default_name || '未命名';
+        this.default_name = initdata.default_name || '未命名一般节点';
         this.data = initdata.data || {};
         this.output_joints = (initdata.output_joints || []).slice();
         this.input_joints = (initdata.input_joints || []).slice();
 
-        NodeTypes[this.class_id] = this;
     }
 
     static create_template(initdata: ENodeTemplateData) {
         return new ENodeTemplate(initdata);
     }
 
-    create_enode(initdata: NodeData): ENode {
+    create_enode(initdata: NodeData, editor: NodeEditor): ENode {
 
         initdata.instance_id = initdata.instance_id || util.uuid();
         initdata.name = initdata.name || this.default_name;
@@ -362,8 +378,7 @@ export class ENodeTemplate implements ENodeTemplateData {
         initdata.input_joints = initdata.input_joints || this.input_joints.slice();
 
 
-        var enode = new ENode(this.class_id, initdata.instance_id, initdata);
-
+        var enode = new ENode(this.class_id, initdata.instance_id, initdata, editor);
         return enode;
 
     }
@@ -379,12 +394,3 @@ export class ENodeTemplate implements ENodeTemplateData {
     }
 
 }
-
-interface NodeTypeSet {
-    [key: string]: ENodeTemplate
-}
-
-export var NodeTypes: NodeTypeSet = {}
-export const defaultNodeClassId = 'default_node_classId';
-export const buildInNodeCLassId: string[] = [defaultNodeClassId];
-new ENodeTemplate({ class_id: defaultNodeClassId });

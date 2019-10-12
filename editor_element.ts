@@ -3,7 +3,7 @@ import * as util from './util';
 
 export interface EditorElementData {
     instance_id: string;
-    pos: { x: number, y: number }
+    pos: Position
 }
 
 export interface Position {
@@ -87,7 +87,7 @@ export abstract class EditorElement extends VisibleElement implements EditorElem
 
 }
 
-export class EditableText extends VisibleElement {
+export class EditableText<T extends {}> extends VisibleElement {
 
     text: d3.Selection<Object>;
     input: d3.Selection<Object>;
@@ -96,15 +96,15 @@ export class EditableText extends VisibleElement {
     value: string;
 
     obj: Object;
-    data_path: [string | number];
+    data_path: Array<string | number>;
 
     editing: boolean;
 
-    constructor(obj, data_path) {
+    constructor(obj: T, data_path: Array<string | number>, editor: NodeEditor) {
         super();
 
         this.obj = obj;
-        this.editor = obj.editor;
+        this.editor = editor;
         this.data_path = data_path;
         this.value = util.get_by_path(obj, data_path)
     }
@@ -135,8 +135,7 @@ export class EditableText extends VisibleElement {
 
         const input_el = util.d3_get(this.input).children[0].getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "input");
         this.input_el = input_el[0] as HTMLInputElement;
-        console.log( this.input_el);
-        
+
         this.set_text(this.value);
     }
 
