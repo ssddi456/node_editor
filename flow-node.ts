@@ -87,10 +87,6 @@ export class FlowNode extends ENode {
             });
         body_bg.redraw();
 
-        const joint_padding_top = element_parameter.joint_padding_top;
-        const joint_height = element_parameter.title_height;
-
-        const joint_top = element_parameter.title_height + joint_padding_top;
         const input_joints = main.append('g')
             .classed('input_joints_container', true) as d3.Selection<SVGGElement>;
 
@@ -116,7 +112,6 @@ export class FlowNode extends ENode {
 
         this.input_joints.forEach(init_join(input_joints, element_parameter.input_joint_pos));
 
-        const last = this.input_joints.length;
         const output_joints = main.append('g')
             .classed('output_joints_container', true) as d3.Selection<SVGGElement>;
 

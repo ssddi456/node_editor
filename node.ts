@@ -223,6 +223,11 @@ export class ENode extends EditorElement implements NodeData {
             origin_cursor_point.x = (e.offsetX - current_zoom.translate.x) / current_zoom.scale - pos.x;// apply transform
             origin_cursor_point.y = (e.offsetY - current_zoom.translate.y) / current_zoom.scale - pos.y;// apply transform
 
+            last_move_pos.x = pos.x;
+            last_move_pos.y = pos.y;
+            drag_data.left = 0;
+            drag_data.top = 0;
+
             this.input_joints.forEach(x => x.start_drag());
             this.output_joints.forEach(x => x.start_drag());
         });
