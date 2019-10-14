@@ -214,6 +214,10 @@ export class NodeEditor {
             temp_connector = new Connector(fake_joint, startjoint as OutputJoint);
         }
 
+        console.log(fake_joint_data.pos);
+        
+        fake_joint.pos = fake_joint_data.pos;
+
         temp_connector.create_view(this.connector_container);
         temp_connector.draw();
 

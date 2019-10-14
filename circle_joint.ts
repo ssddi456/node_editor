@@ -5,20 +5,24 @@ import { InputJoint, OutputJoint, JointViewParam } from "./joint";
 export class InputCircleJoint extends InputJoint {
 
     init_view(container: d3.Selection<Object>, option: JointViewParam) {
-        
+
         var node = container.append('circle')
             .attr({
-                r: 15,
+                r: 20,
                 fill: 'blue'
             });
-    
+
         var text_container = container.append('g');
         var text = text_container.append('text')
             .attr({
                 y: 5,
                 'text-anchor': 'middle'
             })
-        .text(this.jointdata['name'])
+            .style({
+                'user-select': 'none',
+                'pointer-events': 'none'
+            })
+            .text(this.jointdata['name'])
 
 
         node.classed('joint', true);
@@ -41,7 +45,7 @@ export class OutputCircleJoint extends OutputJoint {
 
         var node = container.append('circle')
             .attr({
-                r: 15,
+                r: 20,
                 fill: 'blue'
             });
 
@@ -50,6 +54,10 @@ export class OutputCircleJoint extends OutputJoint {
             .attr({
                 y: 5,
                 'text-anchor': 'middle'
+            })
+            .style({
+                'user-select': 'none',
+                'pointer-events': 'none'
             })
             .text(this.jointdata['name'])
 

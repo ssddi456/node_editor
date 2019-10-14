@@ -62,6 +62,9 @@ export class Connector extends VisibleElement{
         let delta_x = pos_out.x - pos_in.x;
 
         let get_direction = function ( value ) {
+            if (value == 0){
+                return 1;
+            }
             return value / Math.abs(value);
         };
 

@@ -101,6 +101,9 @@ export class ENode extends EditorElement implements NodeData {
 
         var title_text = new EditableText(this, ['name'], this.editor);
         title_text.init_view(title);
+        title_bg.redraw({
+            width: this.element_parameter.body_width,
+        });
 
         var body = main.append('g')
             .classed('node_body', true)
@@ -127,7 +130,7 @@ export class ENode extends EditorElement implements NodeData {
         var init_join = (joint_container: d3.Selection<SVGGElement>, offset = 0) => {
             return (joint: Joint, idx: number) => {
                 joint_param.top = idx * joint_height + offset + joint_top + this.pos.y;
-                joint.init_view(
+                joint.create_view(
                     joint_container
                         .append('g')
                         .classed('joint_container', true)
@@ -148,6 +151,10 @@ export class ENode extends EditorElement implements NodeData {
             }) as d3.Selection<SVGGElement>;
 
         this.output_joints.forEach(init_join(output_joints, last + 16));
+
+        body_bg.redraw({
+            height: this.element_parameter.body_height + this.element_parameter.title_height
+        });
 
         this.element = {
             main,
@@ -256,17 +263,6 @@ export class ENode extends EditorElement implements NodeData {
         element.main.attr({
             'transform': 'translate(' + this.pos.x + ',' + this.pos.y + ')'
         });
-
-        // element.title_text.text( this.name + '#' + this.instance_id );
-
-        element.title_bg.redraw({
-            width: ep.body_width,
-        });
-
-        element.body_bg.redraw({
-            height: ep.body_height + ep.title_height
-        });
-
 
         this.input_joints.forEach((joint) => { joint.draw() });
         this.output_joints.forEach((joint) => { joint.draw() });
