@@ -1,4 +1,4 @@
-import { Joint, OutputJoint, InputJoint, JointData, JointViewParam, JointConfigData } from './joint';
+import { Joint, OutputJoint, InputJoint, JointData, JointViewParam, JointConfigData, JointType } from './joint';
 import { NodeEditor } from "./node_editor";
 import { Position, EditableText, EditorElement, EditorElementData } from './editor_element';
 import * as util from './util';
@@ -392,6 +392,29 @@ export class ENodeTemplate extends NodeTemplate implements ENodeTemplateData {
             output_joints: this.output_joints,
             input_joints: this.input_joints,
         }
+    }
+
+}
+
+export class DataNodeTemplate extends ENodeTemplate {
+    constructor(initdata: Partial<ENodeTemplateData> = {}) {
+        super();
+
+        this.class_id = initdata.class_id || util.uuid();
+        this.default_name = initdata.default_name || '未命名数据节点';
+        this.data = initdata.data || {};
+        this.input_joints = [{
+            type: JointType.INPUT,
+            jointdata: {
+                name: 'data'
+            }
+        }];
+        this.output_joints = [{
+            type: JointType.OUTPUT,
+            jointdata: {
+                name: 'outValue'
+            }
+        }];
     }
 
 }
