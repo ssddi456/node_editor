@@ -11,9 +11,13 @@ interface FlowNodeViewParameter extends ENodeViewParameter {
     output_joint_pos: Position[];
 }
 
-
 const flowNodeWidth = 160;
 const flowNodeHeight = 80;
+const flowNodeInputColor = '#009933';
+const flowNodeOutputColor = '#0099cc';
+const flowNodeOutputElseColor = '#cc0066';
+const flowNodeOutputLoopColor = '#ff9900';
+
 export class FlowNode extends ENode {
     element_parameter: FlowNodeViewParameter = {
         title_top: 45,
@@ -141,13 +145,15 @@ export class FlowNodeTemplate extends ENodeTemplate {
         this.input_joints = [{
             type: JointType.INPUT,
             jointdata: {
-                name: 'IN'
+                name: 'IN',
+                fill: flowNodeInputColor
             }
         }];
         this.output_joints = [{
             type: JointType.OUTPUT,
             jointdata: {
-                name: 'OUT'
+                name: 'OUT',
+                color: flowNodeOutputColor
             }
         }];
     }
@@ -174,7 +180,8 @@ export class FlowStartNodeTemplate extends FlowNodeTemplate {
         this.output_joints = [{
             type: JointType.OUTPUT,
             jointdata: {
-                name: 'OUT'
+                name: 'OUT',
+                color: flowNodeOutputColor
             }
         }];
     }
@@ -189,18 +196,49 @@ export class FlowWhenNodeTemplate extends FlowNodeTemplate {
         this.input_joints = [{
             type: JointType.INPUT,
             jointdata: {
-                name: 'IN'
+                name: 'IN',
+                fill: flowNodeInputColor
             }
         }];
         this.output_joints = [{
             type: JointType.OUTPUT,
             jointdata: {
-                name: 'YES'
+                name: 'YES',
+                color: flowNodeOutputColor
             }
         }, {
             type: JointType.OUTPUT,
             jointdata: {
-                name: 'NO'
+                name: 'NO',
+                fill: flowNodeOutputElseColor
+            }
+        }];
+    }
+}
+
+export class FlowLoopNodeTemplate extends FlowNodeTemplate {
+
+    constructor(initdata: Partial<ENodeTemplateData> = {}) {
+        super(initdata);
+        this.default_name = initdata.default_name || '未命名流程循环节点';
+        this.input_joints = [{
+            type: JointType.INPUT,
+            jointdata: {
+                name: 'IN',
+                fill: flowNodeInputColor
+            }
+        }];
+        this.output_joints = [{
+            type: JointType.OUTPUT,
+            jointdata: {
+                name: 'End',
+                fill: flowNodeOutputColor
+            }
+        }, {
+            type: JointType.OUTPUT,
+            jointdata: {
+                name: 'Loop',
+                fill: flowNodeOutputLoopColor
             }
         }];
     }
