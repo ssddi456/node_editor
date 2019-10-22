@@ -11,7 +11,10 @@ export interface NodeEditorData {
     node_template_list: ENodeTemplateData[],
     node_list: NodeData[],
     connecter_list: ConnectorData[],
-    menu: MenuData,
+};
+
+export interface NodeEditorInitData extends NodeEditorData {
+    menu: MenuData;
 };
 
 export class NodeEditor {
@@ -44,7 +47,7 @@ export class NodeEditor {
         this.joint_map[joint.instance_id] = joint;
     }
 
-    constructor(initdata: NodeEditorData) {
+    constructor(initdata: NodeEditorInitData) {
         if (NodeEditor.instance) {
             return NodeEditor.instance;
         }
@@ -304,7 +307,6 @@ export class NodeEditor {
             connecter_list: this.connector_list
                 .filter(node => !node.is_destroyed)
                 .map(node => node.toJSON()),
-            menu: this.menu.toJSON()
         };
     }
 }

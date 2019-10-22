@@ -169,8 +169,4 @@ export class Menu extends VisibleElement {
     destroy() {
         this.is_destroyed = true;
     }
-
-    toJSON() {
-        return {};
-    }
 }

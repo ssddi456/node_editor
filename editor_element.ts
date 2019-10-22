@@ -67,10 +67,10 @@ export abstract class VisibleElement {
         this.draw();
     }
 
-    abstract init_view(parent: d3.Selection<Object>, option?: Object)
-    abstract bind_event()
-    abstract draw()
-    abstract destroy()
+    abstract init_view(parent: d3.Selection<Object>, option?: Object): void;
+    abstract bind_event(): void;
+    abstract draw(): void;
+    abstract destroy(): void;
 }
 
 export abstract class EditorElement extends VisibleElement implements EditorElementData {
