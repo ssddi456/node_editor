@@ -1,12 +1,11 @@
 import { VisibleElement, Position, ElementMap } from './editor_element'
 import * as util from './util';
 import { ENode, ENodeTemplate, ENodeTemplateData } from './node';
-import { NodeTypes } from "./node_types";
 import { Connector } from './connector';
 import { backgroundObject } from "./util";
 
 export interface MenuData {
-
+    NodeTypes: { [k: string]: ENodeTemplate }
 }
 
 export interface MenuView {
@@ -35,18 +34,19 @@ export class Menu extends VisibleElement {
     constructor(initdata: MenuData) {
         super()
 
-        Object.keys(NodeTypes).forEach((key) => {
-            var type = NodeTypes[key];
+        for (const key in initdata.NodeTypes) {
+            if (initdata.NodeTypes.hasOwnProperty(key)) {
+                const type = initdata.NodeTypes[key];
+                let item_add = new MenuItem();
+                item_add.name = 'add ' + type.default_name + ' node';
 
-            let item_add = new MenuItem();
-            item_add.name = 'add ' + type.default_name + ' node';
+                item_add.action = (context, pos) => {
+                    this.editor.add_node(type, pos)
+                };
 
-            item_add.action = (context, pos) => {
-                this.editor.add_node(type, pos)
-            };
-
-            this.items.push(item_add);
-        });
+                this.items.push(item_add);
+            }
+        }
 
 
         let item_clone = new MenuItem();

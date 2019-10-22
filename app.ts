@@ -1,4 +1,5 @@
 import { NodeEditor } from './node_editor';
+import { NodeTypes } from "./node_types";
 import * as ko from "knockout";
 import * as d3 from "d3";
 
@@ -13,7 +14,12 @@ var toolbar_vm = {
         try {
             var parsed_data = JSON.parse(stored_data);
         } catch (e) {}
-        const editor = new NodeEditor(parsed_data || default_data);
+        const editor = new NodeEditor({ 
+            ...(parsed_data || default_data),
+            menu: {
+                NodeTypes,
+            }
+        });
         toolbar_vm.editor = editor;
         editor.create_view(container, canvas_option);
         return editor;
